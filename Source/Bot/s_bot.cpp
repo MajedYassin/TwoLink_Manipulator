@@ -17,10 +17,15 @@ struct s_bot{
     signed int finq1;
     signed int finq2;
     //Matrices
-
+    Eigen::Matrix3d Base_Pose;
+    Eigen::Matrix3d Joint1_Pose;
+    Eigen::Matrix3d End_Pose;
     Eigen::Matrix3d Inert_M;
-    Eigen::Matrix<double, 1, 2> Grav_M;
+    Eigen::Matrix<double, 2, 1> Grav_M;
     Eigen::Matrix3d Cor_M;
+
+    //Coordinates
+
 
     //Inverse and Forward Kinematics
 
@@ -57,8 +62,9 @@ struct s_bot{
             inq1 = q0[1];
             inq2 = q0[2];
         }
-        if(Task == "Inverse Kinematics") finq1; finq2;
+        if(Task == "Inverse Kinematics") finq1; finq2; //finq1 = InvK[1]; finq1 = InvK[2];
         if(Task == "Forward Kinematics" || Task == "Torque") finq1 = qf[1]; finq2 = qf[2];
+
     }
 
 
