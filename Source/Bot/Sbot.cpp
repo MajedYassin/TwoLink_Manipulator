@@ -1,5 +1,7 @@
-#include "s_bot.h"
+#include "Sbot.h"
 
+//The s_bot struct defines the fundamental properties and parameters of the robot manipulator
+//This struct will be used as the base model from which to execute the computations in Execution Interface
 
 struct s_bot{
     //Link Lengths
@@ -18,20 +20,12 @@ struct s_bot{
     signed int finq2;
     //Matrices
     Eigen::Matrix3d Base_Pose;
-    //Eigen::Matrix3d Joint1_Pose;
-    //Eigen::Matrix3d End_Pose;
+
+    //Inertia Terms
+
     
-    Eigen::Matrix3d Inert_M;
-    Eigen::Matrix<double, 2, 1> Grav_M;
-    Eigen::Matrix3d Cor_M;
-
-
-
-
-
-    s_bot(bool Default, std::string& Task,
-            double& Link1, double& Link2, double& Link1_cm, double& Link2_cm, double& mass1, double& mass2,
-            std::vector<int>& q0, std::vector<int>& qf )
+    s_bot(bool Default, double& Link1, double& Link2, double& Link1_cm, double& Link2_cm, double& mass1, double& mass2,
+            std::vector<int>& q0, std::vector<int>& qf)
 
     {
         if(Default){
@@ -55,11 +49,11 @@ struct s_bot{
             inq1 = q0[1];
             inq2 = q0[2];
         }
-        if(Task == "Inverse Kinematics") finq1; finq2; //finq1 = InvK[1]; finq1 = InvK[2];
-        if(Task == "Forward Kinematics" || Task == "Torque") finq1 = qf[1]; finq2 = qf[2];
+        //Will be computed or defined in the Operation Execution - Next Step
+        finq1 = 0;
+        finq2 = 0;
+        Base_Pose = Eigen::Matrix3d(3, 3, 0);
 
     }
-
-
 
 };
