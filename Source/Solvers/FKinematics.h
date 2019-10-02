@@ -4,6 +4,8 @@
 
 #include <Eigen/Dense>
 #include <cmath>
+#include "../ExecutionInterface/ExecInterface.h"
+#include "../Bot/Sbot.h"
 
 Eigen::MatrixXd FKin(s_bot& Bot, ExecInt& Operation);
 
