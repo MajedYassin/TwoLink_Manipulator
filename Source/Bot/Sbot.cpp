@@ -3,7 +3,8 @@
 //The s_bot struct defines the fundamental properties and parameters of the robot manipulator
 //This struct will be used as the base model from which to execute the computations in Execution Interface
 
-struct s_bot{
+struct s_bot
+        {
     //Link Lengths
     double a1;
     double a2;
@@ -22,13 +23,17 @@ struct s_bot{
     Eigen::Matrix3d Base_Pose;
 
     //Inertia Terms
+    double Inertia1;
+    double Inertia2;
 
-    
+
+
     s_bot(bool Default, double& Link1, double& Link2, double& Link1_cm, double& Link2_cm, double& mass1, double& mass2,
             std::vector<int>& q0, std::vector<int>& qf)
 
     {
-        if(Default){
+        if(Default)
+        {
             a1 = 0.2;
             a2 = 0.2;
             cm1 = 0.1;
@@ -37,6 +42,8 @@ struct s_bot{
             m2 = 1.0;
             inq1 = 0;
             inq2 = 0;
+            Inertia1 = (1/12) * a1* pow(0.05, 3);
+            Inertia2 = Inertia1;
         }
         else
         {

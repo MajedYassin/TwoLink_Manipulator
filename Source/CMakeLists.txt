@@ -30,9 +30,10 @@ add_subdirectory(Solvers)
 add_subdirectory(ExecutionInterface)
 
 set(BOT_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Bot/Sbot.cpp")
-set(SOLVER_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/InvKinematics.cpp")
-set(EXEC_LIB "${TwoLink_manip_SOURCE_DIR}/Source/ExecutionInterface/ExecInterface.cpp")
+set(SOLVER_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/InvKinematics.cpp",
+        "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/FKinematics.cpp")
+set(EXEC_DIR "${TwoLink_manip_SOURCE_DIR}/Source/ExecutionInterface/ExecInterface.cpp")
 
-add_library(source_library ${BOT_DIR} ${SOLVER_DIR} ${EXEC_DIR} ${BOT_LIST} ${SOLVER_LIST})
+add_library(source_library ${BOT_DIR} ${SOLVER_DIR} ${BOT_LIST} ${SOLVER_LIST})
 
-target_link_libraries(source_library PUBLIC gtest gtest_main Catch2::Catch2 eigen)
+target_link_libraries(source_library PUBLIC ${EXEC_DIR} gtest gtest_main Catch2::Catch2 eigen)
