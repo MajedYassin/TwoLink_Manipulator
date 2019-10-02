@@ -18,19 +18,12 @@ struct s_bot{
     signed int finq2;
     //Matrices
     Eigen::Matrix3d Base_Pose;
-    Eigen::Matrix3d Joint1_Pose;
-    Eigen::Matrix3d End_Pose;
+    //Eigen::Matrix3d Joint1_Pose;
+    //Eigen::Matrix3d End_Pose;
+    
     Eigen::Matrix3d Inert_M;
     Eigen::Matrix<double, 2, 1> Grav_M;
     Eigen::Matrix3d Cor_M;
-
-    //Coordinates
-
-
-    //Inverse and Forward Kinematics
-
-
-    //Dynamics
 
 
 

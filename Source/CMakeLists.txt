@@ -24,12 +24,13 @@ FetchContent_MakeAvailable(googletest)
 FetchContent_MakeAvailable(catch2)
 FetchContent_MakeAvailable(eigen)
 
-
 #Work in Progress: Need to regularly update libraries
-set(HEADER_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Bot/s_bot.h")
-set(BOT_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Bot/s_bot.cpp")
-set(SOLVER_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/InvKinematics.cpp")
+add_subdirectory(Bot)
+add_subdirectory(Solvers)
 
-add_library(source_library ${BOT_DIR} ${SOLVER_LIST} ${HEADER_LIST})
+set(BOT_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Bot/s_bot.cpp")
+set(SOLVER_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/InvKinematics.cpp")
+
+add_library(source_library ${BOT_DIR} ${SOLVER_DIR} ${BOT_LIST} ${SOLVER_LIST})
 
 target_link_libraries(source_library PUBLIC gtest gtest_main Catch2::Catch2 eigen)
