@@ -20,7 +20,7 @@ Eigen::Matrix3d FKin(s_bot& Bot, ExecInt& Input)
     double a2 = Bot.a2;
     double d2 = 0.0;
     Eigen::Matrix3d T1, T2;
-    T1 = Transl(a1, d1 );
+    T1 = Transl(a1, d1);
     T2 = Transl(a2, d2);
 
     //Rotation Matrix - Function Rot (Rotation Matrix function of q) will be in Common
@@ -31,7 +31,6 @@ Eigen::Matrix3d FKin(s_bot& Bot, ExecInt& Input)
     Eigen::Matrix3d EPose;
 
     EPose = ((R1*T1)*R2)*T2;
-
 
     return EPose;
 }

@@ -3,8 +3,8 @@
 #define TWOLINK_MANIP_EXECINTERFACE_H
 
 #include <Eigen/Dense>
-#include <vector>
 #include "../Common/Common.h"
+#include "../Bot/Sbot.h"
 
 //The ExecutionInterface computes the Inital and final properties of the model e.g. pose, and
 //calls the functions of the Solver to execute the calculations necessary to compute:
@@ -15,7 +15,7 @@ struct ExecInt
 {
     Eigen::Matrix3d Base;
     Eigen::Matrix3d Joint1_Pose;
-    Eigen::Matrix3d End_Pose;
+    Eigen::Matrix3d EPose;
     Eigen::Matrix3d InertiaMatrix;
     Eigen::Matrix<double, 2, 1> GravityMatrix;
     Eigen::Matrix3d CoriolisMatrix;
@@ -24,10 +24,10 @@ struct ExecInt
 
 
 
-    ExecInt(s_bot& Bot, std::string& )
+    ExecInt(s_bot& Bot,std::string& )
     {
         Base = Bot.Base_Pose;
-
+        EPose;
 
 
     }

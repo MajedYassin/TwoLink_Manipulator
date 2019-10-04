@@ -3,9 +3,9 @@
 #define TWOLINK_MANIP_INVKINEMATICS_H
 
 #include <cmath>
-#include <vector>
-#include <Eigen/Dense>
+#include "../ExecutionInterface/ExecInterface.h"
+#include "../Bot/Sbot.h"
 
-std::vector<int> InvK(double& a1, double& a2, int& x, int& y);
+Eigen::Vector2d InvK(s_bot& Bot, ExecInt& Input);
 
 #endif //TWOLINK_MANIP_INVKINEMATICS_H
