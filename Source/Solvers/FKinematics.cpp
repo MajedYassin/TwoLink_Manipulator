@@ -9,17 +9,19 @@ Eigen::Matrix3d FKin(s_bot& Bot, ExecInt& Input)
     double q1a = Bot.inq1;
     double q2a = Bot.inq2;
     Eigen::Matrix3d BPose = Bot.Base_Pose;
-    //Desired Joitn Angles set in Ecexution Interface - still need to add in struct
+    //Desired Joint  Angles set in Ecexution Interface - still need to add in struct
     double q1b = ExecInt.Inputq1;
     double q2b = ExecInt.Inputq2;
 
 
     //Translation Matrices - Maybe Move to Common functions.cpp
+    double a1 = Bot.a1;
+    double d1 = 0.0;
+    double a2 = Bot.a2;
+    double d2 = 0.0;
     Eigen::Matrix3d T1, T2;
-    T1 = Eigen::Matrix3d::Identity();
-    T1[1,3]= Bot.a1;
-    T2 = Eigen::Matrix3d::Identity();
-    T2[1,3]= Bot.a2;
+    T1 = Transl(a1, d1 );
+    T2 = Transl(a2, d2);
 
     //Rotation Matrix - Function Rot (Rotation Matrix function of q) will be in Common
     Eigen::Matrix3d R1 = Rot(q1b);

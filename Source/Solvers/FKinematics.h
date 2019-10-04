@@ -7,7 +7,7 @@
 #include "../ExecutionInterface/ExecInterface.h"
 #include "../Bot/Sbot.h"
 
-Eigen::MatrixXd FKin(s_bot& Bot, ExecInt& Operation);
+Eigen::Matrix3d FKin(s_bot& Bot, ExecInt& Operation);
 
 
 #endif //TWOLINK_MANIP_FKINEMATICS_H

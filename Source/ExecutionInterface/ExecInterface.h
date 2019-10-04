@@ -4,6 +4,7 @@
 
 #include <Eigen/Dense>
 #include <vector>
+#include "../Common/Common.h"
 
 //The ExecutionInterface computes the Inital and final properties of the model e.g. pose, and
 //calls the functions of the Solver to execute the calculations necessary to compute:
