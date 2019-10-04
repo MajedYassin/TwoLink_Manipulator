@@ -33,7 +33,10 @@ set(SOLVER_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/InvKinematics.cpp"
         "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/FKinematics.cpp")
 set(EXEC_DIR "${TwoLink_manip_SOURCE_DIR}/Source/ExecutionInterface/ExecInterface.h")
 set(BOT_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Bot/Sbot.h")
+set(COMMON_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Common/Common.cpp")
 
-add_library(source_library ${SOLVER_DIR} ${SOLVER_LIST} ${EXEC_DIR} ${BOT_LIST} )
+add_library(source_library ${SOLVER_DIR} ${SOLVER_LIST} ${EXEC_DIR} ${BOT_LIST} ${COMMON_LIST})
+
+#set(COMMON_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Common/Common.h")
 
 target_link_libraries(source_library PUBLIC gtest gtest_main Catch2::Catch2 eigen)

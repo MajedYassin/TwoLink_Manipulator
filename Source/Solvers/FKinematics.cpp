@@ -15,10 +15,9 @@ Eigen::Matrix3d FKin(s_bot& Bot, ExecInt& Input)
 
 
     //Translation Matrices - Maybe Move to Common functions.cpp
-    Eigen::Matrix3d T1;
+    Eigen::Matrix3d T1, T2;
     T1 = Eigen::Matrix3d::Identity();
     T1[1,3]= Bot.a1;
-    Eigen::Matrix3d T2;
     T2 = Eigen::Matrix3d::Identity();
     T2[1,3]= Bot.a2;
 
