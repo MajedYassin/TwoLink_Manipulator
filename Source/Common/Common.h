@@ -15,7 +15,7 @@ Eigen::Matrix3d FindPose(double& x, double& y, double& q);
 
 struct Coordinates{
     double X, Y;
-    Coordinates(Eigen::Matrix3d& M) : X{M(1, 3)}, Y{M(2, 3)} {}
+    Coordinates(Eigen::Matrix3d& M) : X(M(1, 3)), Y(M(2, 3)) {}
 };
 
 template <typename T>

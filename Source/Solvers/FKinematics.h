@@ -2,12 +2,12 @@
 #ifndef TWOLINK_MANIP_FKINEMATICS_H
 #define TWOLINK_MANIP_FKINEMATICS_H
 
-#include <Eigen/Dense>
-#include <cmath>
+#include "../Bot/State.h"
 #include "../ExecutionInterface/ExecInterface.h"
 #include "../Bot/Sbot.h"
 
-Eigen::Matrix3d FKin(s_bot& Bot, ExecInt& Operation);
-
+namespace ForwardKinematics {
+    Eigen::Matrix3d f_kin(SBot &Bot, State &Input);
+}
 
 #endif //TWOLINK_MANIP_FKINEMATICS_H

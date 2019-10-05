@@ -35,8 +35,11 @@ set(EXEC_DIR "${TwoLink_manip_SOURCE_DIR}/Source/ExecutionInterface/ExecInterfac
 set(BOT_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Bot/Sbot.h")
 set(COMMON_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Common/Common.cpp")
 set(COMMON_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Common/Common.h")
+set(TORQUE_DIR "${TwoLink_manip_SOURCE_DIR}/Source/TorqueCtrl/TorqueCtrl.cpp")
+set(STATE_HEADER "${TwoLink_manip_SOURCE_DIR}/Source/Bot/State.h")
 
-add_library(source_library ${SOLVER_DIR} ${SOLVER_LIST} ${EXEC_DIR} ${BOT_LIST} ${COMMON_DIR} )
+add_library(source_library ${SOLVER_DIR} ${SOLVER_LIST} ${EXEC_DIR} ${BOT_LIST} ${STATE_HEADER} ${COMMON_DIR}
+        ${TORQUE_DIR} ${TORQUE_LIST})
 
 #set(COMMON_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Common/Common.h")
 
