@@ -5,6 +5,7 @@
 #include "../Bot/State.h"
 #include "../ExecutionInterface/ExecInterface.h"
 #include "../Bot/Sbot.h"
+#include <numpy>
 
 Eigen::Vector2d inv_kin(SBot& bot, State& input);
 

@@ -43,4 +43,14 @@ void Print(T& var){
     std::cout << var << std::endl;
 }
 
+Eigen::ArrayX2d& derivative_array(Eigen::ArrayX2d& array, double& duration,double& timestep)
+{
+    auto size = array.size();
+    Eigen::ArrayX2d diff_array;
+    for (auto i = 0; i < size; ++i)
+    {
+        diff_array(i) = (array(i+1)- array(i))/ timestep;
+    }
+    return diff_array;
+}
 

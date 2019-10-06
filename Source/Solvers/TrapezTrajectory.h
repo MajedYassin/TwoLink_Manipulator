@@ -1,0 +1,7 @@
+
+#ifndef TWOLINK_MANIP_TRAPEZTRAJECTORY_H
+#define TWOLINK_MANIP_TRAPEZTRAJECTORY_H
+#include <Eigen/Dense>
+#include <numpy>
+
+#endif //TWOLINK_MANIP_TRAPEZTRAJECTORY_H
