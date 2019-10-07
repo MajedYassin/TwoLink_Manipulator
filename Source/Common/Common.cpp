@@ -43,13 +43,18 @@ void Print(T& var){
     std::cout << var << std::endl;
 }
 
-Eigen::VectorXd& derivative_array(Eigen::VectorXd& array, double& timestep)
+Eigen::MatrixX2d derivative_array(Eigen::MatrixX2d& array, double& timestep)
 {
-    auto size = array.size();
-    Eigen::VectorXd diff_array;
-    for (auto i = 0; i < size; ++i)
+    auto length= array.rows();
+    Eigen::MatrixX2d diff_array;
+    int j = 0;
+    while(j != 2)
     {
-        diff_array(i) = (array(i+1)- array(i))/ timestep;
+        for (int i = 0; i < length; ++i)
+        {
+            diff_array(i,j) = (array(i+1, j)- array(i, j))/ timestep;
+        }
+        ++j;
     }
     return diff_array;
 }

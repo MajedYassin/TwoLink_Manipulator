@@ -2,7 +2,7 @@
 #include "TrpzTrajectory.h"
 
 
-Eigen::VectorXd tr_traj(State& s, ExecInt& end, SBot& bot, double& dt)
+Eigen::MatrixX2d tr_traj(State s, ExecInt end, SBot bot, double& dt)
 {
     //Acc_max & Vel_max are obtained from the SBot s.variable
     //Defining the desired orientation of first angle (angle with largest rotation) this will be changed
