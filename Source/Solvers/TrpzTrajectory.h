@@ -6,8 +6,9 @@
 #include "../Bot/State.h"
 #include <Eigen/Dense>
 #include "../Common/Common.h"
+#include <math.h>
 
-Eigen::MatrixX2d tr_traj(State& s, ExecInt& end, SBot& bot, double timestep);
+Eigen::MatrixX2d tr_traj(State& s, ExecInt& end, SBot& bot, double& timestep);
 
 //Trajectory function with no constant velocity phase (Non trapezoidal velocity profile)
 Eigen::MatrixX2d n_traj(State& s, ExecInt& end, SBot& bot, double timestep);
@@ -42,17 +43,17 @@ public:
             q_traj = tr_traj(s, end, bot, timestep);
         }
         else {
-            q_traj = traj();
+            q_traj = n_traj(s, end, bot, timestep);
         }
     }
 
 
-
     void velocity_traj(){qd_traj = derivative_array(q_traj, timestep);}
 
-    void acc_traj(){qdd_traj = derivative_array(qd_traj, timestep);}
 
+    void acc_traj(){qdd_traj = derivative_array(qd_traj, timestep);}
 };
+
 
 
 #endif //TWOLINK_MANIP_TRAPEZTRAJECTORY_H

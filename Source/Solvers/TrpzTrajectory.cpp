@@ -2,22 +2,54 @@
 #include "TrpzTrajectory.h"
 
 
-Eigen::MatrixX2d tr_traj(State s, ExecInt end, SBot bot, double& dt)
-{
+Eigen::MatrixX2d tr_traj(State s, ExecInt end, SBot bot, double& dt) {
     //Acc_max & Vel_max are obtained from the SBot s.variable
     //Defining the desired orientation of first angle (angle with largest rotation) this will be changed
-    double qi, qj; //Temporary variables
-    //if(end.q(0) >= end.q(1)) qi = end.q(0);
+    double hi, hj; //Temporary variables
+    int i, j;
     //else qi = input.q(1);
+    double joint_1_rotation = fabs(end.finq1 - s.q(0));
+    hi = std::max(fabs(end.finq1 - s.q(0)), fabs(end.finq2 - s.q(1))); //largest joint rotation
+    hj = std::min(fabs(end.finq1 - s.q(0)), fabs(end.finq2 - s.q(1))); //smallest joint rotation
+    if(hi = joint_1_rotation) i = 0; j = 1;
+    else j = 0; i = 1;
 
+    // double qi = hi + (s.q(0));
+    int *x = new int(1);
+    *x = 0;
+    double Ta = 0;
+    double T = 0;
+    double Amax = bot.Amax;
+    Eigen::MatrixX2d Qa;
+    double q = 0.0;
+    double t= 0; //time index
 
-    double hi = qi - (s.q(0));
+    if (hi < 0) Amax = -1 * Amax;
 
+    if (hi >= (pow(bot.Vmax, 2)) / fabs(Amax))
+        Ta = bot.Vmax / fabs(Amax);
+    T = ((fabs(hi)) * fabs(Amax) + (pow(bot.Vmax, 2))) / (fabs(Amax) * bot.Vmax);
+    for (t = 0; t != Ta; t += dt) {
+        q = s.q(i) + 0.5 * Amax * pow((t - 0.0), 2);
+        Qa(*x, i) = q;
+        ++(*x);
+    }
 
-    Eigen::Vector2d q;
-    q << 8, 9, 10;
+    for (t = Ta; t != T - Ta; t += dt){
+        q = s.q(i) + Amax * Ta * (t - Ta / 2);
+        Qa(*x, i) = q;
+        ++(*x);
+    }
 
-    return q;
+    for (t = Ta; t != T - Ta; t += dt){
+        q = end.finq(i) + Amax * Ta * (t - Ta / 2);
+        Qa(*x, i) = q;
+        ++(*x);
+    t = T-Ta : ti : T
+            q = qi - 0.5*Amax*(T - t)^2;
+        Qa(*x, i) = q;
+        ++(*x);
+
 
     /*
     %%Trajectory Plot
@@ -101,4 +133,11 @@ Eigen::MatrixX2d tr_traj(State s, ExecInt end, SBot bot, double& dt)
     time = 0:ti:T;
 
      */
+}
+
+Eigen::MatrixX2d n_traj(State& s, ExecInt& end, SBot& bot, double timestep)
+{
+
+
+
 }
