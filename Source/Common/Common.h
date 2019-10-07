@@ -24,7 +24,7 @@ void Print(T& var);
 template <typename T>
 void Print_vector(T& vector);
 
-Eigen::ArrayX2d& derivative_array(Eigen::ArrayX2d& array, double& duration,double& timestep);
+Eigen::VectorXd& derivative_array(Eigen::VectorXd& array, double& timestep);
 
 
 

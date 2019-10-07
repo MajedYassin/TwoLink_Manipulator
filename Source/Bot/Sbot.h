@@ -25,6 +25,9 @@ struct SBot
     const double Inertia2 = Inertia1;
     //Base Pose at Origin(0, 0)
     Eigen::Matrix3d BasicPose = Eigen::Matrix3d::Identity();
+    //Motor Parameters
+    double Amax = 8.0;
+    double Vmax = 10.0;
 
     SBot() = default;
 };

@@ -17,7 +17,8 @@ struct ExecInt
 {
     //Operations
     State Q;
-
+    double finq1;
+    double finq2;
 
     ExecInt(SBot& Bot)
     {
