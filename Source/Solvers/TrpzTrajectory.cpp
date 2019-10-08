@@ -17,8 +17,23 @@ void TrapezTrajectory::prioritise()
     }
 }
 
+Eigen::MatrixX2d TrapezTrajectory::adjust_traj(Eigen::MatrixX2d& Qd){
+    if ((i = 0)){
+        return Qd;
+    }
+    else{
+        Eigen::MatrixX2d Q;
+        //Q << Qd.cols(1), Qd.cols(0);
+        for (int n = 0; n != Qd.rows(); ++n) {
+                Q(n, 0) = Qd(n, j);
+                Q(n, 1) = Qd(n, i);
+        }
+        return Q;
+    }
+}
 
-void TrapezTrajectory::tr_traj() {
+
+Eigen::MatrixX2d TrapezTrajectory::tr_traj() {
     prioritise();
 
     //Acc_max & Vel_max are obtained from the SBot s.variable
@@ -49,19 +64,19 @@ void TrapezTrajectory::tr_traj() {
             if (hi >= (pow(bot.Vmax, 2)) / fabs(Amax))
                 Ta = bot.Vmax / fabs(Amax);
             T = ((fabs(hi)) * fabs(Amax) + (pow(bot.Vmax, 2))) / (fabs(Amax) * bot.Vmax);
-            for (t = 0; t != Ta; t = +dt) {
+            for (t = 0; t != Ta; t += dt) {
                 q = s.q(i) + 0.5 * Amax * pow((t - 0.0), 2);
                 Qa(x, i) = q;
                 ++(x);
             }
 
-            for (t = Ta; t != T - Ta; t = +dt) {
+            for (t = Ta; t != T - Ta; t += dt) {
                 q = s.q(i) + Amax * Ta * (t - Ta / 2);
                 Qa(x, i) = q;
                 ++(x);
             }
 
-            for (t = T - Ta; t != T - Ta; t = +dt) {
+            for (t = T - Ta; t != T - Ta; t += dt) {
                 q = end.finq(i) + Amax * Ta * pow((T - t), 2);
                 Qa(x, i) = q;
                 ++(x);
@@ -89,19 +104,15 @@ void TrapezTrajectory::tr_traj() {
                 Qa(x) = q;
                 ++x;
             }
-
             return Qa;
         };
     }
 
-    auto Q = [&](Eigen::MatrixX2d &Qa) -> Eigen::MatrixX2d {
+    auto Q = [&](Eigen::MatrixX2d& Qa) -> Eigen::MatrixX2d {
         double t = 0; //time index
 
-        double qj = s.q(j);
-
         double Aj = hj / (Ta * (T - Ta));
-        double Vj = hj / (T - Ta);
-
+        // Vj = hj / (T - Ta);
 
         if (hj < 0) Aj = -1 * Aj;
 
@@ -120,6 +131,7 @@ void TrapezTrajectory::tr_traj() {
             ++x;
         }
         return Qa;
-        q_traj = Qa;
     };
+    Q = adjust_traj(Q);
+    return Q;
 }
