@@ -45,16 +45,6 @@ public:
     void prioritise();
 
     void tr_traj();
-    void n_traj();
-    void set_traj() {
-        if( hi >= (pow(bot.Vmax,2)/bot.Amax)) {
-            tr_traj();
-        }
-        else {
-            n_traj();
-        }
-    }
-
 
     void velocity_traj(){qd_traj = derivative_array(q_traj, timestep);}
 
