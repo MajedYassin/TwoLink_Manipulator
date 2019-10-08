@@ -22,6 +22,8 @@ private:
     double hi;
     double hj;
     double timestep;
+    int i;
+    int j;
 
 public:
     Eigen::MatrixX2d q_traj;
@@ -29,21 +31,27 @@ public:
     Eigen::MatrixX2d qdd_traj;
 
 
-    explicit TrapezTrajectory(State& state, ExecInt& input, SBot& sbot) : s(state), end(input), bot(sbot) {
+    explicit TrapezTrajectory(State& state, ExecInt& input, SBot& sbot) : s(state), end(input), bot(sbot){
         q_traj   = Eigen::MatrixX2d::Zero();
         qd_traj  = Eigen::MatrixX2d::Zero();
         qdd_traj = Eigen::MatrixX2d::Zero();
-        hi = std::max(end.finq1 - s.q(0), end.finq2 - s.q(1)); //largest joint rotation
-        hj = std::min(end.finq1 - s.q(0), end.finq2 - s.q(1)); //smallest joint rotation
+        i = 0;
+        j = 1;
+        hi = 0.0; //largest joint rotation
+        hj = 0.0; //smallest joint rotation
         timestep = 0.01;
     };
 
+    void prioritise();
+
+    void tr_traj();
+    void n_traj();
     void set_traj() {
         if( hi >= (pow(bot.Vmax,2)/bot.Amax)) {
-            q_traj = tr_traj(s, end, bot, timestep);
+            tr_traj();
         }
         else {
-            q_traj = n_traj(s, end, bot, timestep);
+            n_traj();
         }
     }
 

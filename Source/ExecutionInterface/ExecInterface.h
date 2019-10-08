@@ -16,9 +16,8 @@
 struct ExecInt
 {
     //Operations
-    State Q;
-    double finq1;
-    double finq2;
+    State Q = State();
+    Eigen::Vector2d finq;
 
     ExecInt(SBot& Bot)
     {
