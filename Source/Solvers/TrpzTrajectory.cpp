@@ -26,33 +26,36 @@ void TrapezTrajectory::tr_traj() {
     //else qi = input.q(1);
     // double qi = hi + (s.q(0));
 
-    int x = 0;
-    double Ta = 0;
-    double T = 0;
+    int x       = 0;
+    double Ta   = 0;
+    double T    = 0;
     double Amax = bot.Amax;
-    Eigen::MatrixX2d Qa;
-    double q = 0.0;
-    double t= 0; //time index
-    double qi0 = s.q(i);
+    double q    = 0.0;
+    double t0   = 0;
+    double t; //time iterator
 
+    //Matrix containing the joint angles at each time step to return to q_traj in the TrapezTrajectory object
+    Eigen::MatrixX2d Qa;
+
+    //Changes sign of the acceleration for
     if (hi < 0) Amax = -1 * Amax;
 
     if (hi >= (pow(bot.Vmax, 2)) / fabs(Amax))
         Ta = bot.Vmax / fabs(Amax);
     T = ((fabs(hi)) * fabs(Amax) + (pow(bot.Vmax, 2))) / (fabs(Amax) * bot.Vmax);
-    for (t = 0; t != Ta; t += dt) {
+    for (t = 0; t != Ta; t =+ dt) {
         q = s.q(i) + 0.5 * Amax * pow((t - 0.0), 2);
-        Qa(*x, i) = q;
-        ++(*x);
+        Qa(x, i) = q;
+        ++(x);
     }
 
-    for (t = Ta; t != T - Ta; t += dt){
+    for (t = Ta; t != T - Ta; t =+ dt){
         q = s.q(i) + Amax * Ta * (t - Ta / 2);
         Qa(x, i) = q;
         ++(x);
     }
 
-    for (t = Ta; t != T - Ta; t += dt) {
+    for (t = T - Ta; t != T - Ta; t =+ dt) {
         q = end.finq(i) + Amax * Ta * pow((T - t),2);
         Qa(x, i) = q;
         ++(x);
@@ -60,17 +63,32 @@ void TrapezTrajectory::tr_traj() {
 
 
     auto Q = [&] (Eigen::MatrixX2d& Qa) -> Eigen::MatrixX2d {
-        Eigen::MatrixX2d Qt;
-        Eigen::MatrixX2d Qj;
+        double t= 0; //time index
+
+        double qj = s.q(j);
+
+        double Aj = hj / (Ta*(T-Ta));
+        double Vj = hj / (T - Ta);
 
 
+        if(hj < 0) Aj = -1 * Aj;
 
+        //resets for joint angle iterator and initial joint position
+        x = 0;
+        q = s.q(j);
 
-
-
-
-        Qt << Qa, Qj;
-        return Qt;
+        for(t = t0; t != Ta; t =+ dt) {
+            q = s.q(j) + 0.5 * Aj * pow(t - t0, 2);
+            Qa(x, j) = q;
+            ++x;
+        }
+        for (t = Ta; t != T + 0.001; t =+ dt) {
+            q = end.finq(j) - 0.5 * Aj * pow(T - t, 2);
+            Qa(x, j) = q;
+            ++x;
+        }
+        return Qa;
+        q_traj = Qa;
     };
     /*
     %%Trajectory Plot
@@ -177,30 +195,26 @@ Eigen::MatrixX2d n_traj(State& s, ExecInt& end, SBot& bot, double& dt)
 
 Eigen::MatrixX2d qj_traj(State& s, ExecInt& end, SBot& bot,double& dt, )
 {
-    double Ta = 0;
-    double T = 0;
-    double Amax = bot.Amax;
-    Eigen::MatrixX2d Qa;
     double q = 0.0;
     double t= 0; //time index
 
     double qj = s.q(j);
-    hj = qj - q0;
 
-    double Aj = hj / (Ta*(T-Ta));
+    Aj = hj / (Ta*(T-Ta));
     Vj = hj / (T - Ta);
 
+    x = 0;
+    q = s.q(j);
 
-    double x = 1;
-    q = q0;
-    for(t = 0; t != Ta; t + dt) tj = t0:ti:Ta
-        q = qj0 + 0.5*Aj*(tj - t0)^2;
-    qja{x} = q;
-    x = x + 1;
-    end
-    for tj = (T - Ta):ti:T
-        q = qj - 0.5*Aj*(T - tj)^2;
-    qja{x} = q;
-    x = x + 1;
-    end
+    for(t = 0; t != Ta; t + dt) {
+        q = qj0 + 0.5 * Aj * pow(tj - t0, 2);
+        Qa(x, j) = q;
+        ++x;
+    }
+    for (t = Ta; t != T + 0.001; t + td) {
+        q = end.finq(j) - 0.5 * Aj * pow(T - t, 2);
+        Qa(x, j) = q;
+        ++x;
+    }
+
 }
