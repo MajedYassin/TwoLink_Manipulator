@@ -24,7 +24,7 @@ private:
     SBot& bot;
     double hi;
     double hj;
-    int joint //joint number
+    int joint; //joint number
     double Amax;
     double Vmax;
     double t0;
@@ -36,7 +36,7 @@ private:
     int x; //iterator
     enum Phase {acc_phase, const_velocity, decel_phase};
     std::map<const Phase, std::function<Eigen::MatrixX2d (Eigen::MatrixX2d, double, double)>> map;
-    Eigen::MatrixX2d Q;
+    Eigen::MatrixX2d Qa;
 
 public:
     Eigen::MatrixX2d q_traj;
@@ -60,14 +60,15 @@ public:
         t = 0.0; // time iterator
         Ta = acc_time();
         T = duration();
-        int x; //iterator
+        x = 0; //iterator
+        Qa = Eigen::MatrixX2d::Zero();
 
         map[acc_phase] = [&](Eigen::MatrixX2d Q, int joint, double A) -> Eigen::MatrixX2d {
-            for(t = 0; t != Ta; t += dt) { q = s.q(joint) + 0.5 * A * pow((t - 0.0), 2); Qa(x, joint) = q; ++(x);}};
-        map[const_velocity] = [&] (Eigen::MatrixX2d Q, double q0, double qf, double A) -> Eigen::MatrixX2d {
-            for(t = Ta; t != T - Ta; t += dt) {q = s.q(joint) + A * Ta * (t - Ta / 2); Qa(x, joint) = q; ++(x);}};
-        map[decel_phase] = [&] (Eigen::MatrixX2d Q, double q0, double qf, double A) -> Eigen::MatrixX2d {
-            for(t = T - Ta; t != T; t += dt){q = end.finq(joint) - A * Ta * pow((T-t), 2); Qa(x, joint) = q; ++(x);}};
+            for(t = 0; t != Ta; t += dt) { q = s.q(joint) + 0.5 * A * pow((t - 0.0), 2); Q(x, joint) = q; ++(x);}};
+        map[const_velocity] = [&] (Eigen::MatrixX2d Q, int joint, double A) -> Eigen::MatrixX2d {
+            for(t = Ta; t != T - Ta; t += dt) {q = s.q(joint) + A * Ta * (t - Ta / 2); Q(x, joint) = q; ++(x);}};
+        map[decel_phase] = [&] (Eigen::MatrixX2d Q, int joint, double A) -> Eigen::MatrixX2d {
+            for(t = T - Ta; t != T; t += dt){q = end.finq(joint) - A * Ta * pow((T-t), 2); Q(x, joint) = q; ++(x);}};
     };
 
     double acc_time();
@@ -76,19 +77,17 @@ public:
     double duration();
 
 
-    void
-
-
     void prioritise();
 
-    Eigen::MatrixX2d adjust_traj(Eigen::MatrixX2d& Q);
+    void re_prioritise();
+
 
     Eigen::MatrixX2d tr_traj();
 
-    Eigen::MatrixX2d velocity_traj(){return derivative_array(q_traj, timestep);}
+    Eigen::MatrixX2d velocity_traj(){return derivative_array(q_traj, dt);}
 
 
-    Eigen::MatrixX2d acc_traj(){return derivative_array(qd_traj, timestep);}
+    Eigen::MatrixX2d acc_traj(){return derivative_array(qd_traj, dt);}
 };
 
 
