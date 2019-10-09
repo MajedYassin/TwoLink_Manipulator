@@ -11,12 +11,6 @@
 #include <functional>
 
 
-Eigen::MatrixX2d tr_traj(State& s, ExecInt& end, SBot& bot, double& timestep);
-
-//Trajectory function with no constant velocity phase (Non trapezoidal velocity profile)
-Eigen::MatrixX2d n_traj(State& s, ExecInt& end, SBot& bot, double timestep);
-
-
 struct TrapezTrajectory{
 private:
     State& s;
@@ -52,25 +46,33 @@ public:
         joint = 0;
         hi = 0.0; //larger rotation
         hj = 0.0; //smaller rotation
-        dt = 0.01; //timestep
-        A = sbot.Amax;
+        A = sbot.Amax; //Joint Actuator acceleration
         Vmax = sbot.Vmax;
-        t0 = 0.0;
+        t0 = 0.0; //starting time
         dt = 0.01; //timestep
         q = 0.0; //joint position iterator
         t = 0.0; // time iterator
-        Ta = acc_time();
-        T = duration();
+        Ta = acc_time(); // Acceleration time
+        T = duration(); // Duration of Joint rotation
         x = 0; //iterator
-        Qa = Eigen::MatrixX2d::Zero();
+        Qa = Eigen::MatrixX2d::Zero(); 
         joint_traj_i_done = false;
 
         map[acc_phase] = [&](Eigen::MatrixX2d Q, int joint) -> Eigen::MatrixX2d {
-            for(t = 0; t != Ta; t += dt) { q = s.q(joint) + 0.5 * A * pow((t - 0.0), 2); Q(x, joint) = q; ++(x);}};
+            for(t = 0; t != Ta; t += dt){
+                q = s.q(joint) + 0.5 * A * pow((t - 0.0), 2);
+                Q(x, joint) = q; ++(x);
+            }};
         map[const_velocity] = [&] (Eigen::MatrixX2d Q, int joint) -> Eigen::MatrixX2d {
-            for(t = Ta; t != T - Ta; t += dt) {q = s.q(joint) + A * Ta * (t - Ta / 2); Q(x, joint) = q; ++(x);}};
+            for(t = Ta; t != T - Ta; t += dt) {
+                q = s.q(joint) + A * Ta * (t - Ta / 2);
+                Q(x, joint) = q; ++(x);}
+        };
         map[decel_phase] = [&] (Eigen::MatrixX2d Q, int joint) -> Eigen::MatrixX2d {
-            for(t = T - Ta; t != T; t += dt){q = end.finq(joint) - A * Ta * pow((T-t), 2); Q(x, joint) = q; ++(x);}};
+            for(t = T - Ta; t != T; t += dt){
+                q = end.finq(joint) - A * Ta * pow((T-t), 2);
+                Q(x, joint) = q; ++(x);
+            }};
     };
 
     void prioritise();

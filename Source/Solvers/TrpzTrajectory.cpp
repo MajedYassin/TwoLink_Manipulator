@@ -48,7 +48,7 @@ void TrapezTrajectory::joint_acceleration()
         A = hj / (Ta * (T - Ta));
     }
     else{
-        if(hi < 0) A = -1 * bot.Amax;
+        if(hi < 0) A = -1 * bot.Amax; //Change sign of acceleration for a negative rotation (clockwise)
         else A = bot.Amax;
     }
 }
@@ -57,15 +57,10 @@ Eigen::MatrixX2d TrapezTrajectory::tr_traj(){
 
     prioritise();
 
+    //Matrix containing the joint angles at each time step to return to q_traj is TrapezTrajectory::Qa
     //Amax & Vmax are obtained directly from the SBot and are the actuators maximum acceleration and velocity
-
     //timestep iterator
     t = 0.0;
-
-    //Matrix containing the joint angles at each time step to return to q_traj is TrapezTrajectory::Qa
-
-    //Change sign of acceleration for a negative rotation (clockwise)
-    if (hi < 0) A = -1 * A;
 
 
     if( fabs(hi) >= (pow(bot.Vmax,2)/bot.Amax)) {
@@ -86,18 +81,18 @@ Eigen::MatrixX2d TrapezTrajectory::tr_traj(){
             map[decel_phase] (Qa, joint);
     }
 
+    //re-assigning next joint for trajectory planning
     re_prioritise();
 
-    t = 0.0; //reset time index
-
+    //Calculating joint acceleration of slower joint
     joint_acceleration();
-    // Vj = hj / (T - Ta);
+    // The velocity would also be reduced but not used: Vj = hj / (T - Ta);
 
-    //resets for joint angle and time iterator
+    //resets joint angle and time iterators
     x = 0;
-    t = 0.0; //reset time index
+    t = 0.0; // time iterator
 
-    //Trajectory phases of joint with equal or smaller rotation required
+    //Trajectory phases of joint with equal or smaller rotation
     map[acc_phase] (Qa, joint);
     map[decel_phase] (Qa, joint);
 
