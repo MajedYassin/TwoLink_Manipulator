@@ -17,6 +17,10 @@ void TrapezTrajectory::prioritise()
     }
 }
 
+
+
+
+
 Eigen::MatrixX2d TrapezTrajectory::adjust_traj(Eigen::MatrixX2d& Qd){
     if ((i = 0)){
         return Qd;
@@ -52,7 +56,6 @@ Eigen::MatrixX2d TrapezTrajectory::tr_traj() {
     double t; //time iterator
 
     //Matrix containing the joint angles at each time step to return to q_traj in the TrapezTrajectory object
-    //Eigen::MatrixX2d Qa;
 
     if( hi >= (pow(bot.Vmax,2)/bot.Amax)) {
         auto Qa = [&]() -> Eigen::Matrix2d {
@@ -67,19 +70,19 @@ Eigen::MatrixX2d TrapezTrajectory::tr_traj() {
             for (t = 0; t != Ta; t += dt) {
                 q = s.q(i) + 0.5 * Amax * pow((t - 0.0), 2);
                 Qa(x, i) = q;
-                ++(x);
+                ++x;
             }
 
             for (t = Ta; t != T - Ta; t += dt) {
                 q = s.q(i) + Amax * Ta * (t - Ta / 2);
                 Qa(x, i) = q;
-                ++(x);
+                ++x;
             }
 
             for (t = T - Ta; t != T - Ta; t += dt) {
                 q = end.finq(i) + Amax * Ta * pow((T - t), 2);
                 Qa(x, i) = q;
-                ++(x);
+                ++x;
             }
 
             return Qa;
@@ -135,3 +138,60 @@ Eigen::MatrixX2d TrapezTrajectory::tr_traj() {
     Q = adjust_traj(Q);
     return Q;
 }
+
+
+auto acc_phase = [&](Eigen::MatrixX2d Q) -> Eigen::MatrixX2d {
+    for (t = 0; t != Ta; t += dt) {
+    q = s.q(i) + 0.5 * Amax * pow((t - 0.0), 2);
+    Qa(x, i) = q;
+    ++(x);
+    }
+}
+
+
+auto const_velocity = [&](Eigen::MatrixX2d Q) -> Eigen::MatrixX2d {
+    for (t = Ta; t != T - Ta; t += dt) {
+        q = s.q(i) + Amax * Ta * (t - Ta / 2);
+        Qa(x, i) = q;
+        ++(x);
+    }
+}
+
+
+auto deceleration_phase = [&](Eigen::MatrixX2d& Q) -> Eigen::MatrixX2d {
+    for (t = T - Ta; t != T - Ta; t += dt) {
+        q = end.finq(i) + Amax * Ta * pow((T - t), 2);
+        Qa(x, i) = q;
+        ++(x);
+    }
+}
+
+auto
+for (t = t0; t != Ta; t += dt) {
+q = s.q(i) + 0.5 * Amax * pow(t - t0, 2);
+Qa(x) = q;
+++x;
+}
+
+for (t = Ta; t != T; t += dt) {
+q = end.finq(i) - 0.5 * Amax * pow(T - t, 2);
+Qa(x) = q;
+++x;
+}
+retur
+auto  = [&](Eigen::MatrixX2d& Qa) -> Eigen::MatrixX2d {}
+
+
+auto  = [&](Eigen::MatrixX2d& Qa) -> Eigen::MatrixX2d {}
+
+
+
+auto  = [&](Eigen::MatrixX2d& Qa) -> Eigen::MatrixX2d {}
+
+
+auto  = [&](Eigen::MatrixX2d& Qa) -> Eigen::MatrixX2d {}
+
+
+
+
+
