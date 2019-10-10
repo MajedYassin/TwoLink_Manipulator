@@ -8,29 +8,24 @@
 #include "../Common/Common.h"
 #include <cmath>
 #include <map>
+#include <algorithm>
 #include <functional>
 
 
 struct TrapezTrajectory{
 private:
-    State& s;
-    ExecInt& end;
     SBot& bot;
-    double hi;
-    double hj;
-    int joint; //joint number
-    double A;
+    double hmax;
     double Vmax;
-    double t0;
     double dt;
-    double q;
-    double t;
-    double Ta;
-    double T;
-    bool joint_traj_i_done;
     int x; //iterator
     enum Phase {acc_phase, const_velocity, decel_phase};
-    std::map<const Phase, std::function<Eigen::MatrixX2d (Eigen::MatrixX2d, int)>> map;
+    enum Time {a, d};
+    std::map<const Time, double> T;
+    std::map<const Phase, std::function<Eigen::MatrixX2d
+    (Eigen::MatrixX2d, Eigen::Vector2d, std::map<const Time, double>, Eigen::Vector2d)>> map;
+    Eigen::Array2d h;
+    Eigen::Array2d A;
     Eigen::MatrixX2d Qa;
 
 public:
@@ -38,42 +33,7 @@ public:
     Eigen::MatrixX2d qd_traj;
     Eigen::MatrixX2d qdd_traj;
 
-
-    explicit TrapezTrajectory(State& state, ExecInt& input, SBot& sbot) : s(state), end(input), bot(sbot){
-        q_traj   = tr_traj();
-        qd_traj  = velocity_traj();
-        qdd_traj = acc_traj();
-        joint = 0;
-        hi = 0.0; //larger rotation
-        hj = 0.0; //smaller rotation
-        A = sbot.Amax; //Joint Actuator acceleration
-        Vmax = sbot.Vmax;
-        t0 = 0.0; //starting time
-        dt = 0.01; //timestep
-        q = 0.0; //joint position iterator
-        t = 0.0; // time iterator
-        Ta = acc_time(); // Acceleration time
-        T = duration(); // Duration of Joint rotation
-        x = 0; //iterator
-        Qa = Eigen::MatrixX2d::Zero(); 
-        joint_traj_i_done = false;
-
-        map[acc_phase] = [&](Eigen::MatrixX2d Q, int joint) -> Eigen::MatrixX2d {
-            for(t = 0; t != Ta; t += dt){
-                q = s.q(joint) + 0.5 * A * pow((t - 0.0), 2);
-                Q(x, joint) = q; ++(x);
-            }};
-        map[const_velocity] = [&] (Eigen::MatrixX2d Q, int joint) -> Eigen::MatrixX2d {
-            for(t = Ta; t != T - Ta; t += dt) {
-                q = s.q(joint) + A * Ta * (t - Ta / 2);
-                Q(x, joint) = q; ++(x);}
-        };
-        map[decel_phase] = [&] (Eigen::MatrixX2d Q, int joint) -> Eigen::MatrixX2d {
-            for(t = T - Ta; t != T; t += dt){
-                q = end.finq(joint) - A * Ta * pow((T-t), 2);
-                Q(x, joint) = q; ++(x);
-            }};
-    };
+    TrapezTrajectory(SBot& sbot);
 
     void prioritise();
 
@@ -81,22 +41,19 @@ public:
     void joint_acceleration();
 
 
-    double acc_time();
+    void acc_time();
 
 
-    double duration();
+    void duration();
 
 
-    void re_prioritise();
+    Eigen::MatrixX2d tr_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
 
 
-    Eigen::MatrixX2d tr_traj();
+    Eigen::MatrixX2d velocity_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
 
 
-    Eigen::MatrixX2d velocity_traj(){return derivative_array(q_traj, dt);}
-
-
-    Eigen::MatrixX2d acc_traj(){return derivative_array(qd_traj, dt);}
+    Eigen::MatrixX2d acc_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
 };
 
 #endif //TWOLINK_MANIP_TRAPEZTRAJECTORY_H

@@ -19,17 +19,13 @@ struct ExecInt
     State Q = State();
     Eigen::Vector2d finq;
 
-    ExecInt(SBot& Bot)
+    ExecInt(SBot& Bot, )
     {
         Q = State();
         Q.q;
     }
 
 
-
-
-    if(Task == "Inverse Kinematics") finq1; finq2; //finq1 = InvK[1]; finq1 = InvK[2];
-    if(Task == "Forward Kinematics" || Task == "Torque") finq1 = qf[1]; finq2 = qf[2];
 };
 
 #endif //TWOLINK_MANIP_EXECINTERFACE_H
