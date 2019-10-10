@@ -6,23 +6,23 @@
 
 
 
-Eigen::Matrix3d ForwardKinematics::f_kin(SBot& Bot, State& input)
+Eigen::Matrix3d ForwardKinematics::f_kin(SBot& bot, State& s, Eigen::Vector2d& qf)
 {
-    double q1a = Bot.inq1;
-    double q2a = Bot.inq2;
-    Eigen::Matrix3d BPose = Bot.Base_Pose;
+    double q1a = s.q(0);
+    double q2a = s.q(1);
+    Eigen::MatrixX3d BPose = Eigen::MatrixX3d::Identity();
     //Desired Joint  Angles set in Execution Interface - still need to add in struct
 
     //Translation Matrices - Maybe Move to Common functions.cpp
     double d1 = 0.0;
     double d2 = 0.0;
-    Eigen::Matrix3d T1, T2;
-    T1 = Transl(Bot.l1_length, d1);
-    T2 = Transl(Bot.l2_length, d2);
+    Eigen::Matrix2d T1, T2;
+    T1 = Transl(bot.l1_length, d1);
+    T2 = Transl(bot.l2_length, d2);
 
     //Rotation Matrix - Function Rot (Rotation Matrix function of q) will be in Common
-    Eigen::Matrix3d R1 = Rot(input.q(0));
-    Eigen::Matrix3d R2 = Rot(input.q(1));
+    Eigen::Matrix3d R1 = Rot(qf(0));
+    Eigen::Matrix3d R2 = Rot(qf(1));
 
     //Final Pose of End-Effector give nby input joint angles
     Eigen::Matrix3d EPose;

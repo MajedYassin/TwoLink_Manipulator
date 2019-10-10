@@ -3,7 +3,6 @@
 #define TWOLINK_MANIP_INVKINEMATICS_H
 
 #include "../Bot/State.h"
-#include "../ExecutionInterface/ExecInterface.h"
 #include "../Bot/Sbot.h"
 #include <numpy>
 

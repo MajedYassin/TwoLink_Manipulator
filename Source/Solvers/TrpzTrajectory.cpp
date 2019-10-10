@@ -35,11 +35,9 @@ TrapezTrajectory::TrapezTrajectory(SBot& sbot) : bot(sbot) {
         };
         map[decel_phase] = [&] (Eigen::MatrixX2d Q, Eigen::Vector2d A, std::map<const Time, double> T, Eigen::Vector2d qf){
             for(int n = 0; n != A.size(); ++n) {
-                if (fabs(h[n]) >= (pow(bot.Vmax, 2) / bot.Amax)) {
-                    for (double t = T[d] - T[a]; t != T[d]; t += dt) {
-                        Q(x, n) = qf(n) - A(n) * T[a] * pow((T[d] - t), 2);
-                        ++(x);
-                    }
+                for (double t = T[d] - T[a]; t != T[d]; t += dt) {
+                    Q(x, n) = qf(n) - A(n) * T[a] * pow((T[d] - t), 2);
+                    ++(x);
                 }
             }
             return Q;
@@ -55,6 +53,7 @@ Eigen::MatrixX2d TrapezTrajectory::velocity_traj(Eigen::Vector2d& q0, Eigen::Vec
 
 //Need fix to allow user to request only acc_traj without calling velocity_traj
 Eigen::MatrixX2d TrapezTrajectory::acc_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf){
+    TrapezTrajectory::velocity_traj(q0, qf);
     return derivative_array(qd_traj, dt);
 }
 
@@ -115,7 +114,9 @@ Eigen::MatrixX2d TrapezTrajectory::tr_traj(Eigen::Vector2d& q0, Eigen::Vector2d&
 
         map[acc_phase](Qa, A, T, q0);
 
-        map[const_velocity](Qa, A, T, q0);
+        if (hmax >= (pow(bot.Vmax, 2) / bot.Amax)) {
+            map[const_velocity](Qa, A, T, q0);
+        }
 
         map[decel_phase] (Qa, A, T, qf);
     }

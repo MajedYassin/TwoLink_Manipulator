@@ -2,7 +2,8 @@
 #ifndef TWOLINK_MANIP_TORQUECTRL_H
 #define TWOLINK_MANIP_TORQUECTRL_H
 
-#include "../ExecutionInterface/ExecInterface.h"
+#include "../Bot/State.h"
+#include "../Bot/Sbot.h"
 
 struct Dynamics
 {

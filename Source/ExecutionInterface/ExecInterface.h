@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 #include "../Common/Common.h"
 #include "../Bot/Sbot.h"
+#include "../Solvers/TrpzTrajectory.h"
 
 //The ExecutionInterface computes the Inital and final properties of the model e.g. pose, and
 //calls the functions of the Solver to execute the calculations necessary to compute:
@@ -16,15 +17,25 @@
 struct ExecInt
 {
     //Operations
-    State Q = State();
+    State s;
+    TrapezTrajectory trajectory;
+    Eigen::MatrixX2d Q;
+    SBot sbot;
+
     Eigen::Vector2d finq;
 
-    ExecInt(SBot& Bot, )
+    ExecInt(State& instance, TrapezTrajectory& traj, Eigen::Vector2d& joint_configuration, SBot& bot) : trajectory(traj), s(instance), sbot(bot)
     {
-        Q = State();
-        Q.q;
+        finq = joint_configuration;
+        Q = Eigen::MatrixX2d::Zero();
     }
 
+
+    // Eigen::MatrixX2d get_trajectory(Eigen::Vector2d& endq);
+
+    Eigen::MatrixX2d get_trajectory(Eigen::Vector2d& endq){
+        return trajectory.tr_traj(s.q, endq);
+    }
 
 };
 
