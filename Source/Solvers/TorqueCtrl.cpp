@@ -6,6 +6,12 @@
 //The solver will comprise the Dynamics and Inverse Dynamics meber functions
 
 Dynamics::Dynamics(State& state, SBot& sbot) : s(state), bot(sbot){
+    Inertia = Eigen::Matrix2d::Zero();
+    Gravity = Eigen::Matrix2d::Zero();
+    Coriolis = Eigen::Matrix2d::Zero();
+    Torque << 0.0, 0.0;
+    force2 << 0.0, 0.0;
+
     Rq = Eigen::Rotation2Dd(s.q);
     Iq << bot.Inertia1, bot.Inertia2;
     //Inertia of link with respect ot base frame: I = Rq * Eigen::Vector2d(sbot.Inertia1, sbot.Inertia2) * Rq.transpose();
@@ -52,14 +58,36 @@ void Dynamics::forward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Ei
 }
 
 
-void backward_recursion_2()
+void Dynamics::backward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q)
 {
-    
+    Eigen::Vector2d f2;
+    f2 = bot.mass2 * linear_acc2 + bot.mass2 * Gravity.col(1);
+
+    double tau;
+    tau = Iq(0) * (qdd(0) + qdd(1)) + f2(2)* link_cm(1);
+
+    force2 = f2;
+    Torque(1) = tau;
 }
 
 
-void backward_recursion_1()
+void Dynamics::backward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q)
 {
+    Eigen::Vector2d f1;
+    Eigen::Matrix2d R1_2 = Rot(q(1));
 
+    f1 = bot.mass1 * linear_acc1 + R1_2.col(1)* force2(1) - bot.mass1 * Gravity.col(0);
+
+    double tau;
+    tau = Torque(1) - f1(1) * link_cm(0) - R1_2(1,1) * force2(1) * l(0) + Iq(0) * (qdd(0) + qdd(1));
+
+    Torque(0) = tau;
+
+}
+
+
+Eigen::ArrayX2d Dynamics::get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj)
+{
+    
 }
 
