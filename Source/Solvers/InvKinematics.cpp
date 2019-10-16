@@ -1,14 +1,14 @@
 #include "InvKinematics.h"
 
 //Analytic Approach to Inverse Kinematics of 2D system
-Eigen::Vector2d inv_kin(SBot& bot, Eigen::Matrix3d& FPose)
+Eigen::Vector2d inv_kin(SBot& bot, Eigen::Matrix3d& FPose, Coordinates& cartesian)
 {
-    Coordinates Cartesian(FPose);
+    cartesian = Coordinates(FPose);
     double a1, a2, x, y;
     a1 = bot.l1_length;
     a2 = bot.l2_length;
-    x = Cartesian.X;
-    y = Cartesian.Y;
+    x = cartesian.X;
+    y = cartesian.Y;
 
     Eigen::Vector2d QReq;
 

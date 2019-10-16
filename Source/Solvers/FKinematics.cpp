@@ -10,13 +10,12 @@ Eigen::Matrix3d ForwardKinematics::f_kin(SBot& bot, State& s, Eigen::Vector2d& q
 {
     double q1a = s.q(0);
     double q2a = s.q(1);
-    Eigen::MatrixX3d BPose = Eigen::MatrixX3d::Identity();
     //Desired Joint  Angles set in Execution Interface - still need to add in struct
 
     //Translation Matrices - Maybe Move to Common functions.cpp
     double d1 = 0.0;
     double d2 = 0.0;
-    Eigen::Matrix2d T1, T2;
+    Eigen::Matrix3d T1, T2;
     T1 = Transl(bot.l1_length, d1);
     T2 = Transl(bot.l2_length, d2);
 

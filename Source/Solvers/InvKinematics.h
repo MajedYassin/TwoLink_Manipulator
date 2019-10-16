@@ -4,8 +4,8 @@
 
 #include "../Bot/State.h"
 #include "../Bot/Sbot.h"
-#include <numpy>
+#include "../Common/Common.h"
 
-Eigen::Vector2d inv_kin(SBot& bot, State& input);
+Eigen::Vector2d inv_kin(SBot& bot, State& input, Coordinates& cartesian);
 
 #endif //TWOLINK_MANIP_INVKINEMATICS_H

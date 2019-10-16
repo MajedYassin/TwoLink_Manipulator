@@ -9,14 +9,15 @@
 #include <map>
 #include <algorithm>
 #include <functional>
+#include <memory>
 
 
 struct TrapezTrajectory{
 
 public:
-    Eigen::MatrixX2d q_traj;
-    Eigen::MatrixX2d qd_traj;
-    Eigen::MatrixX2d qdd_traj;
+    std::unique_ptr<Eigen::MatrixX2d> q_traj;
+    std::unique_ptr<Eigen::MatrixX2d> qd_traj;
+    std::unique_ptr<Eigen::MatrixX2d> qdd_traj;
 
     explicit TrapezTrajectory(SBot& sbot);
 
@@ -45,6 +46,7 @@ private:
     SBot& bot;
     double hmax;
     double Vmax;
+    double t;
     double dt;
     int x; //iterator
     enum Phase {acc_phase, const_velocity, decel_phase};
@@ -52,8 +54,8 @@ private:
     std::map<const Time, double> T;
     std::map<const Phase, std::function<Eigen::MatrixX2d
             (Eigen::MatrixX2d, Eigen::Vector2d, std::map<const Time, double>, Eigen::Vector2d)>> map;
-    Eigen::Array2d h;
-    Eigen::Array2d A;
+    Eigen::Vector2d h;
+    Eigen::Vector2d A;
     Eigen::MatrixX2d Qa;
 };
 
