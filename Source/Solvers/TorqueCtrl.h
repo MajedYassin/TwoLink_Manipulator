@@ -17,19 +17,19 @@ struct Dynamics
     explicit Dynamics(State& state, SBot& sbot);
 
 
-    void forward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
+    Eigen::Vector2d forward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
 
 
-    void forward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
+    Eigen::Vector2d forward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
 
 
-    void backward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
+    double backward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
 
 
-    void backward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
+    double backward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
 
 
-    Eigen::Matrix2d inertia_tensor(Eigen::Vector2d& I);
+    Eigen::MatrixX2d inertia_tensor(Eigen::Vector2d& I);
 
 
     void get_inertia_matrix();
@@ -38,7 +38,7 @@ struct Dynamics
     void get_coriolis_matix();
 
 
-    Eigen::ArrayX2d get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj);
+    Eigen::Matrix2Xd get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj);
 
 
 private:

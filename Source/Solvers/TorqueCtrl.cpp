@@ -28,7 +28,7 @@ Dynamics::Dynamics(State& state, SBot& sbot) : s(state), bot(sbot){
 //Eigen::Vector2d TorqueOut(TorqueInt& Tau, Eigen::Vector2d& Dynamics){}
 
 
-void Dynamics::forward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q)
+Eigen::Vector2d Dynamics::forward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q)
 {
     Eigen::Vector2d Ac;
 
@@ -38,6 +38,8 @@ void Dynamics::forward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Ei
 
     Eigen::Matrix2d Rq1_T = Rot(q(0)).transpose();
     Gravity.col(0) = Rq1_T.col(1) * bot.mass1 * g;
+
+    return Ac;
 }
 
 
@@ -87,8 +89,12 @@ double Dynamics::backward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd,
 }
 
 
-Eigen::ArrayX2d Dynamics::get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj)
+Eigen::Matrix2Xd Dynamics::get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj)
 {
+    Eigen::Vector2d lin_acc1, lin_acc2;
+    Eigen::Matrix2Xd torque;
+
+
     for(int i = 0; i != q_traj.rows(); ++i)
     {
         Eigen::Vector2d q, qd, qdd;
@@ -96,18 +102,20 @@ Eigen::ArrayX2d Dynamics::get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2
         qd  << qd_traj(i, 0), qd_traj(i, 1);
         q   << q_traj(i, 0), q_traj(i, 1);
 
-        forward_recursion_1(qdd, qd, q);
+        lin_acc1 = forward_recursion_1(qdd, qd, q);
 
-        forward_recursion_2(qdd, qd, q);
+        lin_acc2 = forward_recursion_2(qdd, qd, q);
 
-        backward_recursion_2(qdd, qd, q);
+        torque(1, i) = backward_recursion_2(qdd, qd, q);
 
-        backward_recursion_1(qdd, qd, q);
+        torque(0, i) = backward_recursion_1(qdd, qd, q);
 
     }
 
     //We are only concerned with the effect of gravity in the y-direction.
     Gravity = Gravity.row(2).transpose();
+
+    return torque;
 }
 
 Eigen::Matrix2d Dynamics::inertia_tensor(Eigen::Vector2d& I){
