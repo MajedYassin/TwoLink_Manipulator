@@ -5,6 +5,7 @@
 #include "../Bot/State.h"
 #include "../Bot/Sbot.h"
 #include "../Common/Common.h"
+#include <memory>
 
 struct Dynamics
 {
@@ -12,7 +13,7 @@ struct Dynamics
     Eigen::Matrix2d Inertia;
     Eigen::Matrix2d Gravity;
     Eigen::Matrix2d Coriolis;
-    Eigen::Vector2d Torque;
+    std::unique_ptr<Eigen::Matrix2Xd> Torque;
 
     explicit Dynamics(State& state, SBot& sbot);
 
@@ -20,16 +21,16 @@ struct Dynamics
     Eigen::Vector2d forward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
 
 
-    Eigen::Vector2d forward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
+    Eigen::Vector2d forward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, Eigen::Vector2d& linear_acc1);
 
 
-    double backward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
+    double backward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, Eigen::Vector2d& linear_acc2);
 
 
-    double backward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
+    double backward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, double torque2, Eigen::Vector2d& linear_acc1);
 
 
-    Eigen::MatrixX2d inertia_tensor(Eigen::Vector2d& I);
+    static Eigen::Matrix2d inertia_tensor(Eigen::Vector2d& I);
 
 
     void get_inertia_matrix();
@@ -44,15 +45,7 @@ struct Dynamics
 private:
     State& s;
     SBot& bot;
-    Eigen::Vector2d Omega;
-    Eigen::Vector2d linear_acc1;
-    Eigen::Vector2d linear_acc2;
-    Eigen::Vector2d vel;
-    Eigen::Vector2d ang_acc;
-    Eigen::Vector2d l;
-    Eigen::Vector2d link_cm;
-    Eigen::Vector2d Iq;
-    Eigen::Vector2d force2;
+    Eigen::Vector2d l, link_cm, Iq, link2_force;
     double g;
 };
 

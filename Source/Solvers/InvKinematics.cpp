@@ -5,8 +5,8 @@ Eigen::Vector2d inv_kin(SBot& bot, Eigen::Matrix3d& FPose, Coordinates& cartesia
 {
     cartesian = Coordinates(FPose);
     double a1, a2, x, y;
-    a1 = bot.l1_length;
-    a2 = bot.l2_length;
+    a1 = bot.link_length(0);
+    a2 = bot.link_length(1);
     x = cartesian.X;
     y = cartesian.Y;
 

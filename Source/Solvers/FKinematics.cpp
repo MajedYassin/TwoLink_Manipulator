@@ -16,9 +16,10 @@ Eigen::Matrix3d ForwardKinematics::f_kin(SBot& bot, State& s, Eigen::Vector2d& q
     double d1 = 0.0;
     double d2 = 0.0;
     Eigen::Matrix3d T1, T2;
-    T1 = Transl(bot.l1_length, d1);
-    T2 = Transl(bot.l2_length, d2);
+    T1 = Transl(bot.link_length(0), d1);
+    T2 = Transl(bot.link_length(1), d2);
 
+    //qf: final joint configuration/angle
     //Rotation Matrix - Function Rot (Rotation Matrix function of q) will be in Common
     Eigen::Matrix3d R1 = Rot(qf(0));
     Eigen::Matrix3d R2 = Rot(qf(1));
