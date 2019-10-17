@@ -29,6 +29,15 @@ struct Dynamics
     void backward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
 
 
+    Eigen::Matrix2d inertia_tensor(Eigen::Vector2d& I);
+
+
+    void get_inertia_matrix();
+
+
+    void get_coriolis_matix();
+
+
     Eigen::ArrayX2d get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj);
 
 
