@@ -78,6 +78,40 @@ Eigen::Vector2d Dynamics::forward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vecto
 }
 
 
+//Generic recursion function for N-link manipulators
+
+Eigen::MatrixXd Dynamics::forward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q)
+{
+    Eigen::MatrixXd Ac;
+
+    //Linear acceleration : components of acceleration in x and y with respect to link frame
+    Ac.col(0) << qd(0) * qd(0) * link_cm(0), - qdd(0) * link_cm(0);
+
+
+    for(int n = 1; n != q.size(); ++n)
+    {
+        double qcd  = 0.0;
+        double qcdd = 0.0;  //sum of joint rotation components
+        int m = 1;  //joint component iterator
+        while( m <= n){
+            qcd += qd(m);
+            qcdd += qdd(m);
+            ++m;
+        }
+        Eigen::Vector2d An_1, An;
+        An_1 = (Rot(q(n-1)).transpose() * Ac.col(n-1));
+        An = (Eigen::Vector2d(2, 1) << -pow(qcd, 2) * link_cm(n), qcdd * link_cm(n)).finished();
+        Ac.col(n) = An_1 + An;
+    }
+
+    Eigen::Matrix3d Rq1_T = Rot(q(0)).transpose();
+    Gravity.col(0) = Rq1_T.col(1) * bot.mass1 * g;
+
+    return Ac;
+}
+
+
+
 Eigen::Vector2d Dynamics::forward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, Eigen::Vector2d& linear_acc1)
 {
     Eigen::Vector2d Ac1;
@@ -170,22 +204,38 @@ Eigen::Matrix2d Dynamics::inertia_tensor(Eigen::Vector2d& I){
 }
 
 
-void Dynamics::get_inertia_matrix(Eigen::VectorXd& q)
+Eigen::MatrixXd Dynamics::get_inertia_matrix(Eigen::VectorXd& q)
 {
     //Obtaining the Inertia Matrix using the Jacobian
 
-    Eigen::Matrix2d Jacobian = get_jacobian(q);
+    Eigen::MatrixXd Jacobian = get_jacobian(q);
     Eigen::Matrix2d M;
 
     M = bot.mass1 * Jacobian.col(0) * Jacobian.transpose().col(0) +
             bot.mass2 * Jacobian.col(1) * Jacobian.transpose().col(1) + inertia_tensor(Iq);
-    Inertia = M;
+
+    return M;
 }
 
 
 void Dynamics::get_coriolis_matrix()
 {
 
+}
+
+Eigen::VectorXd Dynamics::get_gravity_vector(Eigen::VectorXd& q){
+    Eigen::Matrix<double, q.size(), 1> g;
+
+    for(int i= 0; i != q.size(); ++i){
+        int n = 0;
+        double dq = 0.0;
+        while(n <= i){
+            dq += q(n);
+            ++n;
+        }
+        g(i) = bot.mass(i) * g * cos(dq);
+    }
+    return g;
 }
 
 
