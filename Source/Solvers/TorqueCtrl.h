@@ -20,7 +20,10 @@ struct Dynamics
     explicit Dynamics(State& state, SBot& sbot);
 
 
-    Eigen::MatrixXd forward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
+    Eigen::MatrixXd forward_recursion(Eigen::VectorXd& qdd, Eigen::VectorXd& qd, Eigen::VectorXd& q);
+
+
+    Eigen::MatrixXd backward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, Eigen::Matrix2Xd& linear_acc);
 
 
     Eigen::Vector2d forward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
@@ -44,7 +47,7 @@ struct Dynamics
     void get_coriolis_matrix();
 
 
-    Eigen::VectorXd get_gravity_vector(Eigen::VectorXd& q);
+    Eigen::VectorXd get_gravity(Eigen::VectorXd& q);
 
 
     Eigen::MatrixXd get_jacobian(Eigen::VectorXd& q);

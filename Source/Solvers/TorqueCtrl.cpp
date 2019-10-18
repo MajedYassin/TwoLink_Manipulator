@@ -63,7 +63,7 @@ Dynamics::Dynamics(State& state, SBot& sbot) : s(state), bot(sbot){
 
 //Eigen::Vector2d TorqueOut(TorqueInt& Tau, Eigen::Vector2d& Dynamics){}
 
-
+/*
 Eigen::Vector2d Dynamics::forward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q)
 {
     Eigen::Vector2d Ac;
@@ -76,30 +76,29 @@ Eigen::Vector2d Dynamics::forward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vecto
 
     return Ac;
 }
+ */
 
 
 //Generic recursion function for N-link manipulators
 
-Eigen::MatrixXd Dynamics::forward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q)
+Eigen::MatrixXd Dynamics::forward_recursion(Eigen::VectorXd& qdd, Eigen::VectorXd& qd, Eigen::VectorXd& q)
 {
     Eigen::MatrixXd Ac;
 
-    //Linear acceleration : components of acceleration in x and y with respect to link frame
-    Ac.col(0) << qd(0) * qd(0) * link_cm(0), - qdd(0) * link_cm(0);
-
-
-    for(int n = 1; n != q.size(); ++n)
+    //Linear accelerations : components of acceleration in x and y with respect to individual link frame
+    for(int n = 0; n != q.size(); ++n)
     {
         double qcd  = 0.0;
         double qcdd = 0.0;  //sum of joint rotation components
-        int m = 1;  //joint component iterator
+        int m = 0;  //joint component iterator
         while( m <= n){
             qcd += qd(m);
             qcdd += qdd(m);
             ++m;
         }
         Eigen::Vector2d An_1, An;
-        An_1 = (Rot(q(n-1)).transpose() * Ac.col(n-1));
+        if(m > 0) An_1 = (Rot(q(n-1)).transpose() * Ac.col(n-1));
+        else An_1 << 0.0, 0.0;
         An = (Eigen::Vector2d(2, 1) << -pow(qcd, 2) * link_cm(n), qcdd * link_cm(n)).finished();
         Ac.col(n) = An_1 + An;
     }
@@ -110,6 +109,41 @@ Eigen::MatrixXd Dynamics::forward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2
     return Ac;
 }
 
+Eigen::MatrixXd Dynamics::backward_recursion(Eigen::VectorXd& qdd, Eigen::VectorXd& qd, Eigen::VectorXd& q, Eigen::Matrix2Xd& linear_acc)
+{
+    //Base Link Torque
+    Eigen::VectorXd force;
+    Eigen::VectorXd gravity;
+    gravity = get_gravity(q);
+    Eigen::VectorXd torque;
+
+    for(int n = q.size(); n >= 0; --n)
+    {
+        double qcdd = 0.0;
+        int m = n;
+        while(m >= 0){
+            qcdd += q(m);
+            --m;
+        }
+        if(n = 0) {
+            force(n) = bot.mass(n) * linear_acc(2, n) + gravity(n);
+            torque(n) = Iq(n) * qcdd + force(n) * link_cm(n);
+        }
+        else {
+            force(n) = bot.mass(n) * linear_acc(2, n) + Rot(q(n))(1, 1) * force(n + 1) - gravity(n);
+            torque(n) = torque(n + 1) - force(n) * link_cm(n) - Rot(q(n))(1, 1) * force(n + 1) * l(n) + Iq(n) * qdd(n);
+        }
+    }
+
+
+    f1 = bot.mass1 * linear_acc1 + R1_2.col(1)* link2_force(1) - Gravity.col(0);
+
+    double tau;
+    tau = torque2 - f1(1) * link_cm(0) - R1_2(1,1) * link2_force(1) * l(0) + Iq(0) * qdd(0);
+
+    return torque;
+
+}
 
 
 Eigen::Vector2d Dynamics::forward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, Eigen::Vector2d& linear_acc1)
@@ -133,7 +167,7 @@ Eigen::Vector2d Dynamics::forward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vecto
 double Dynamics::backward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, Eigen::Vector2d& linear_acc2)
 {
     Eigen::Vector2d f2;
-    f2 = bot.mass2 * linear_acc2 + Gravity.col(1);
+    f2 = bot.mass2 * linear_acc2 + get_gravity(q(1));
 
     double tau;
     tau = Iq(0) * (qdd(0) + qdd(1)) + f2(2)* link_cm(1);
@@ -180,7 +214,6 @@ Eigen::Matrix2Xd Dynamics::get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX
         torque(0, i) = backward_recursion_1(qdd, qd, q, torque(1, i), lin_acc1);
 
     }
-
     //We are only concerned with the effect of gravity in the y-direction.
     Gravity = Gravity.row(2).transpose();
 
@@ -223,8 +256,8 @@ void Dynamics::get_coriolis_matrix()
 
 }
 
-Eigen::VectorXd Dynamics::get_gravity_vector(Eigen::VectorXd& q){
-    Eigen::Matrix<double, q.size(), 1> g;
+Eigen::VectorXd Dynamics::get_gravity(Eigen::VectorXd& q){
+    Eigen::VectorXd grav;
 
     for(int i= 0; i != q.size(); ++i){
         int n = 0;
@@ -233,9 +266,9 @@ Eigen::VectorXd Dynamics::get_gravity_vector(Eigen::VectorXd& q){
             dq += q(n);
             ++n;
         }
-        g(i) = bot.mass(i) * g * cos(dq);
+        grav(i) = bot.mass(i) * g * cos(dq);
     }
-    return g;
+    return grav;
 }
 
 
