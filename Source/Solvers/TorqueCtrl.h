@@ -6,6 +6,8 @@
 #include "../Bot/Sbot.h"
 #include "../Common/Common.h"
 #include <memory>
+#include <map>
+#include <functional>
 
 struct Dynamics
 {
@@ -33,11 +35,12 @@ struct Dynamics
     static Eigen::Matrix2d inertia_tensor(Eigen::Vector2d& I);
 
 
-    void get_inertia_matrix();
+    void get_inertia_matrix(Eigen::VectorXd& q);
 
 
-    void get_coriolis_matix();
+    void get_coriolis_matrix();
 
+    Eigen::MatrixXd get_jacobian(Eigen::VectorXd& q);
 
     Eigen::Matrix2Xd get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj);
 
@@ -47,6 +50,11 @@ private:
     SBot& bot;
     Eigen::Vector2d l, link_cm, Iq, link2_force;
     double g;
+    enum Link { a, b, e };
+    //Jacobian variables
+    enum Direction {X , Y};
+    std::map<const Direction, std::function<Eigen::MatrixXd
+            (Eigen::MatrixXd, Eigen::VectorXd)>> Component;
 };
 
 

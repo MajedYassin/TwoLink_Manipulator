@@ -6,10 +6,10 @@
 //The solver will comprise the Dynamics and Inverse Dynamics member functions
 
 Dynamics::Dynamics(State& state, SBot& sbot) : s(state), bot(sbot){
-    Inertia = Eigen::Matrix2d::Zero();
-    Gravity = Eigen::Matrix2d::Zero();
+    Inertia  = Eigen::Matrix2d::Zero();
+    Gravity  = Eigen::Matrix2d::Zero();
     Coriolis = Eigen::Matrix2d::Zero();
-    Torque = std::make_unique<Eigen::Matrix2Xd>(2, 100);
+    Torque   = std::make_unique<Eigen::Matrix2Xd>(2, 100);
 
     Rq = Eigen::Rotation2Dd(s.q);
     link2_force = (Eigen::Vector2d(2, 1) << 0.0, 0.0).finished();
@@ -21,6 +21,44 @@ Dynamics::Dynamics(State& state, SBot& sbot) : s(state), bot(sbot){
     l << bot.link_length(0), bot.link_length(1);
     link_cm << bot.link_cm(0), bot.link_cm(1);
     g = 9.81;
+
+    //Jacobian Parameters
+    Component[X] = [&] (Eigen::MatrixXd Jac, Eigen::VectorXd q) -> Eigen::MatrixXd
+    {
+        double x = 0;
+        for(int i = 0; i != q.size(); ++i){
+            for(int n = i; n !=q.size(); ++n){
+                int m = i;
+                double dq = 0.0;
+                while(m <= n) {
+                    dq += q(m);
+                    ++m;
+                }
+                x = l(n)* sin(dq);
+                Jac(0, i) = Jac(0, i) - x;
+            }
+
+        }
+        return Jac;
+    };
+    Component[Y] = [&] (Eigen::MatrixXd Jac, Eigen::VectorXd q) -> Eigen::MatrixXd
+    {
+        double x = 0;
+        for(int i = 0; i != q.size(); ++i){
+            for(int n = i; n != q.size(); ++n){
+                int m = i;
+                double dq = 0.0;
+                while(m <= n) {
+                    dq += q(m);
+                    ++m;
+                }
+                x = l(n)* cos(dq);
+                Jac(1, i) = Jac(1, i) + x;
+            }
+
+        }
+        return Jac;
+    };
 }
 
 //Eigen::Vector2d TorqueOut(TorqueInt& Tau, Eigen::Vector2d& Dynamics){}
@@ -132,20 +170,34 @@ Eigen::Matrix2d Dynamics::inertia_tensor(Eigen::Vector2d& I){
 }
 
 
-void Dynamics::get_inertia_matrix()
+void Dynamics::get_inertia_matrix(Eigen::VectorXd& q)
 {
     //Obtaining the Inertia Matrix using the Jacobian
 
-    Eigen::Matrix2d Jacobian;
+    Eigen::Matrix2d Jacobian = get_jacobian(q);
     Eigen::Matrix2d M;
 
-    M = bot.mass1 * Jacobian.col(0) * Jacobian.transpose().col(0) + bot.mass2 * Jacobian.col(1) * Jacobian.transpose().col(1) + inertia_tensor(Iq);
+    M = bot.mass1 * Jacobian.col(0) * Jacobian.transpose().col(0) +
+            bot.mass2 * Jacobian.col(1) * Jacobian.transpose().col(1) + inertia_tensor(Iq);
     Inertia = M;
 }
 
 
-void Dynamics::get_coriolis_matix()
+void Dynamics::get_coriolis_matrix()
 {
 
 }
 
+
+Eigen::MatrixXd Dynamics::get_jacobian(Eigen::VectorXd& q)
+{
+    std::unique_ptr<Eigen::MatrixXd> J;
+    //Two Rows as the manipulator end-effector has only 2DOF
+    J  = std::make_unique<Eigen::MatrixXd> (2, q.size());
+
+    *J = Component[X](*J, q);
+
+    *J = Component[Y](*J, q);
+
+    return (*J);
+}

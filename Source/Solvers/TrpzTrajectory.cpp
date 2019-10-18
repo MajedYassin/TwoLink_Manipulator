@@ -117,12 +117,12 @@ Eigen::MatrixX2d TrapezTrajectory::tr_traj(Eigen::Vector2d& q0, Eigen::Vector2d&
     //Calculating joint accelerations
     joint_acceleration();
 
-    map[acc_phase](Qa, A, T, q0);
+    Qa = map[acc_phase](Qa, A, T, q0);
 
     if (hmax >= (pow(bot.Vmax, 2) / bot.Amax)) {
-        map[const_velocity](Qa, A, T, q0);
+        Qa = map[const_velocity](Qa, A, T, q0);
     }
 
-    map[decel_phase] (Qa, A, T, qf);
+    Qa = map[decel_phase] (Qa, A, T, qf);
     return Qa;
 }
