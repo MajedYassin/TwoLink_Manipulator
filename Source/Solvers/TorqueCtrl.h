@@ -38,7 +38,7 @@ struct Dynamics
     Eigen::VectorXd get_gravity(Eigen::VectorXd& q);
 
 
-    Eigen::MatrixXd get_jacobian(Eigen::VectorXd& q);
+    Eigen::MatrixXd get_jacobian(Eigen::VectorXd& q, int link);
 
     Eigen::Matrix2Xd get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj);
 
@@ -46,13 +46,13 @@ struct Dynamics
 private:
     State& s;
     SBot& bot;
-    Eigen::Vector2d l, link_cm, Iq;
+    Eigen::Vector2d link_length, link_cm, Iq;
     double g;
-    // enum Link { a, b, e };
+    // enum Link { one = 0, two, e };
     //Jacobian variables
     enum Direction {X , Y};
-    std::map<const Direction, std::function<Eigen::MatrixXd
-            (Eigen::MatrixXd, Eigen::VectorXd)>> Component;
+    std::map<const Direction, std::function <Eigen::MatrixXd
+            (Eigen::MatrixXd, Eigen::VectorXd, int)>> Component;
 };
 
 
