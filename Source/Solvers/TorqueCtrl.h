@@ -23,19 +23,7 @@ struct Dynamics
     Eigen::MatrixXd forward_recursion(Eigen::VectorXd& qdd, Eigen::VectorXd& qd, Eigen::VectorXd& q);
 
 
-    Eigen::MatrixXd backward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, Eigen::Matrix2Xd& linear_acc);
-
-
-    Eigen::Vector2d forward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
-
-
-    Eigen::Vector2d forward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, Eigen::Vector2d& linear_acc1);
-
-
-    double backward_recursion_2(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, Eigen::Vector2d& linear_acc2);
-
-
-    double backward_recursion_1(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, double torque2, Eigen::Vector2d& linear_acc1);
+    Eigen::VectorXd backward_recursion(Eigen::VectorXd& qdd, Eigen::VectorXd& qd, Eigen::VectorXd& q, Eigen::Matrix2Xd& linear_acc);
 
 
     static Eigen::Matrix2d inertia_tensor(Eigen::Vector2d& I);
@@ -44,7 +32,7 @@ struct Dynamics
     Eigen::MatrixXd get_inertia_matrix(Eigen::VectorXd& q);
 
 
-    void get_coriolis_matrix();
+   // void get_coriolis_matrix();
 
 
     Eigen::VectorXd get_gravity(Eigen::VectorXd& q);
@@ -58,9 +46,9 @@ struct Dynamics
 private:
     State& s;
     SBot& bot;
-    Eigen::Vector2d l, link_cm, Iq, link2_force;
+    Eigen::Vector2d l, link_cm, Iq;
     double g;
-    enum Link { a, b, e };
+    // enum Link { a, b, e };
     //Jacobian variables
     enum Direction {X , Y};
     std::map<const Direction, std::function<Eigen::MatrixXd

@@ -7,7 +7,7 @@
 #include <Eigen/Dense>
 
 
-Eigen::Matrix3d Rot(double& q);
+Eigen::MatrixXd Rot(double& q);
 
 Eigen::Matrix3d Transl(double& x, double& y);
 
