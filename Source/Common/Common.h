@@ -31,6 +31,9 @@ void Print_vector(T& vector);
 Eigen::MatrixX2d derivative_array(Eigen::MatrixX2d& array, double& timestep);
 
 
+Eigen::VectorXd integral(Eigen::VectorXd& vec);
+
+
 
 
 

@@ -58,3 +58,9 @@ Eigen::MatrixX2d derivative_array(Eigen::MatrixX2d& array, double& timestep)
     return diff_array;
 }
 
+
+Eigen::VectorXd integral(Eigen::VectorXd& vec)
+{
+
+
+}

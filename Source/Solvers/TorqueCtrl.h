@@ -11,10 +11,9 @@
 
 struct Dynamics
 {
+    double g;
+    double dt;
     Eigen::Matrix2d Rq;
-    Eigen::Matrix2d Inertia;
-    Eigen::Matrix2d Gravity;
-    Eigen::Matrix2d Coriolis;
     std::unique_ptr<Eigen::Matrix2Xd> Torque;
 
     explicit Dynamics(State& state, SBot& sbot);
@@ -35,7 +34,7 @@ struct Dynamics
    // void get_coriolis_matrix();
 
 
-    Eigen::VectorXd get_gravity(Eigen::VectorXd& q);
+    virtual Eigen::VectorXd get_gravity(Eigen::VectorXd& q);
 
 
     Eigen::MatrixXd get_jacobian(Eigen::VectorXd& q, int link);
@@ -47,12 +46,31 @@ private:
     State& s;
     SBot& bot;
     Eigen::Vector2d link_length, link_cm, Iq;
-    double g;
-    // enum Link { one = 0, two, e };
     //Jacobian variables
     enum Direction {X , Y};
     std::map<const Direction, std::function <Eigen::MatrixXd
             (Eigen::MatrixXd, Eigen::VectorXd, int)>> Component;
+};
+
+struct InvDynamics : public Dynamics{
+
+    InvDynamics();
+
+
+    Eigen::VectorXd get_gravity(Eigen::VectorXd& q) override;
+
+
+    Eigen::MatrixX3d state_response(Eigen::VectorXd& q_des, Eigen::VectorXd& qd_des, Eigen::MatrixX3d& response,
+                                    Eigen::VectorXd& torque, Eigen::MatrixXd& inertia, Eigen::MatrixXd& coriolis,
+                                    Eigen::VectorXd& gravity);
+
+
+    Eigen::MatrixXd feedforward_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj);
+
+
+private:
+    double Kv, Kp, Kd;
+
 };
 
 
