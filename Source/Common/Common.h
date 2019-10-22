@@ -10,9 +10,9 @@
 
 Eigen::MatrixXd Rot(double& q);
 
-Eigen::Matrix3d Transl(double& x, double& y);
+Eigen::MatrixXd Transl(double& x, double& y);
 
-Eigen::Matrix3d FindPose(double& x, double& y, double& q);
+Eigen::MatrixXd FindPose(double& x, double& y, double& q);
 
 struct Coordinates{
     double X, Y;
@@ -29,12 +29,12 @@ void Print(T& var);
 template <typename T>
 void Print_vector(T& vector);
 
-Eigen::MatrixX2d derivative_array(Eigen::MatrixX2d& array, double& timestep);
+Eigen::MatrixXd derivative_array(Eigen::MatrixXd& array, double& timestep);
 
 
 struct Integrator{
 
-    std::unique_ptr<Eigen::VectorXd> y, y0;
+    Eigen::VectorXd y, y0;
     double dt;
 
     Integrator(Eigen::VectorXd& vec_0, double& interval);

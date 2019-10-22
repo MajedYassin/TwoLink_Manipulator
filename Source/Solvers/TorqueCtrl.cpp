@@ -62,8 +62,9 @@ Dynamics::Dynamics(State& state, SBot& sbot) : s(state), bot(sbot){
 Eigen::MatrixXd Dynamics::forward_recursion(Eigen::VectorXd& qdd, Eigen::VectorXd& qd, Eigen::VectorXd& q)
 {
     Eigen::MatrixXd Ac, Ae;
-    Ac = (Eigen::MatrixXd(2, q.size()) << 0.0, 0.0, 0.0, 0.0).finished(); //linear acceleration at centre of mass
-    Ae = (Eigen::MatrixXd(2, q.size()) << 0.0, 0.0, 0.0, 0.0).finished(); //linear acceleration at end of link
+    int num = q.size();
+    Ac = Eigen::MatrixXd::Zero(2, num); //linear acceleration at centre of mass
+    Ae = Eigen::MatrixXd::Zero(2, num); //linear acceleration at end of link
 
     //Linear accelerations : components of acceleration in x and y with respect to individual link frame
     for(int n = 0; n != q.size(); ++n) {
@@ -152,32 +153,32 @@ Eigen::MatrixXd InvDynamics::feedforward_torque(Eigen::MatrixX2d& qdd_traj, Eige
     Eigen::MatrixXd torque;
     Eigen::VectorXd q_response, qd_response, qdd_response;
     Eigen::VectorXd q_error, qd_error, qdd_error;
-    q_response   = (Eigen::VectorXd(2, 1) << 0.0, 0.0).finished();
-    qd_response  = (Eigen::VectorXd(2, 1) << 0.0, 0.0).finished();
-    qdd_response = (Eigen::VectorXd(2, 1) << 0.0, 0.0).finished();
+    q_response   = Eigen::VectorXd::Zero(q_traj.cols(), 1);
+    qd_response  = Eigen::VectorXd::Zero(qd_traj.cols(), 1);
+    qdd_response = Eigen::VectorXd::Zero(qdd_traj.cols(), 1);
     Eigen::MatrixX3d response;
     Eigen::MatrixXd inertia_matrix, coriolis_matrix, gravity;
 
     for(int i = 0; i != q_traj.rows(); ++i)
     {
         Eigen::VectorXd q, qd, qdd;
-        qdd = (Eigen::Vector2d(2, 1) << qdd_traj(i, 0), qdd_traj(i, 1)).finished();
-        qd  = (Eigen::Vector2d(2, 1) << qd_traj(i, 0), qd_traj(i, 1)).finished();
-        q   = (Eigen::Vector2d(2, 1) << q_traj(i, 0), q_traj(i, 1)).finished();
+        qdd = qdd_traj.row(i);
+        qd  = qd_traj.row(i);
+        q   = q_traj.row(i);
 
         inertia_matrix = get_inertia_matrix(q);
         coriolis_matrix = get_coriolis_matrix(q, qd);
         gravity = get_gravity(q);
 
 
-        q_error   = q   - response.col(0);
-        qd_error  = qd  - response.col(1);
-        qdd_error = qdd - response.col(2);
+        q_error   = q   - q_response;
+        qd_error  = qd  - qd_response;
+        qdd_error = qdd - qdd_response;
 
         linear_acc = forward_recursion(qdd, qd, q);
         torque.col(i) = backward_recursion( qdd, qd, q, linear_acc) + Kv * qd_error + Kp * q_error;
 
-        qdd_response = state_response(q, qd, response, torque.col(i),  inertia_matrix, coriolis_matrix, gravity);
+        qdd_response = state_response(q, qd, torque.col(i), inertia_matrix, coriolis_matrix, gravity);
 
         qd_response = vel_response.integral(qdd_response);
         q_response  = pos_response.integral(qd_response);
@@ -266,6 +267,7 @@ Eigen::MatrixXd Dynamics::get_jacobian(Eigen::VectorXd& q, int link)
     //Two Rows as the manipulator end-effector has only 2DOF
     J  = std::make_unique<Eigen::MatrixXd> (2, q.size());
 
+
     *J = Component[X](*J, q, link);
     *J = Component[Y](*J, q, link);
 
@@ -276,10 +278,9 @@ Eigen::MatrixXd Dynamics::get_jacobian(Eigen::VectorXd& q, int link)
 Eigen::VectorXd InvDynamics::get_gravity(Eigen::VectorXd& q)
 {
     Eigen::VectorXd grav;
-    grav = (Eigen::VectorXd(q.size(), 1) << 0.0, 0.0, 0.0).finished();
+    grav = Eigen::VectorXd::Zero(q.size(), 1);
 
     for(int i= 0; i != q.size(); ++i){
-        grav(i) = 0.0;
         for(int n = i; n != q.size(); ++n){
             int m = i;
             double dq = 0.0;
