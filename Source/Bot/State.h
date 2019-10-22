@@ -6,13 +6,13 @@
 
 struct State{
     Eigen::Vector2d q;
-    Eigen::Vector2d dq;
-    Eigen::Vector2d ddq;
+    Eigen::Vector2d qd;
+    Eigen::Vector2d qdd;
 
     State() {
         q   = (Eigen::Vector2d(2, 1) << 0, 0).finished();
-        dq  = (Eigen::Vector2d(2, 1) << 0, 0).finished();
-        ddq = (Eigen::Vector2d(2, 1) << 0, 0).finished();
+        qd  = (Eigen::Vector2d(2, 1) << 0, 0).finished();
+        qdd = (Eigen::Vector2d(2, 1) << 0, 0).finished();
     }
 
 
@@ -22,12 +22,12 @@ struct State{
 
 
     void set_velocity(const Eigen::Vector2d& velocity){
-        dq = velocity;
+        qd = velocity;
     }
 
 
     void set_acceleration(const Eigen::Vector2d& acceleration){
-        dq = acceleration;
+        qdd = acceleration;
     }
 
 };

@@ -5,6 +5,7 @@
 #include <cmath>
 #include <iostream>
 #include <Eigen/Dense>
+#include <memory>
 
 
 Eigen::MatrixXd Rot(double& q);
@@ -31,7 +32,18 @@ void Print_vector(T& vector);
 Eigen::MatrixX2d derivative_array(Eigen::MatrixX2d& array, double& timestep);
 
 
-Eigen::VectorXd integral(Eigen::VectorXd& vec);
+struct Integrator{
+
+    std::unique_ptr<Eigen::VectorXd> y, y0;
+    double dt;
+
+    Integrator(Eigen::VectorXd& vec_0, double& interval);
+
+
+    Eigen::VectorXd integral(Eigen::VectorXd& vec_i);
+
+};
+
 
 
 

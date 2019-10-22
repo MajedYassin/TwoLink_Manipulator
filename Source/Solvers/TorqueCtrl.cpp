@@ -115,7 +115,7 @@ Eigen::VectorXd Dynamics::backward_recursion(Eigen::VectorXd& qdd, Eigen::Vector
     return torque;
 }
 
-
+/*
 Eigen::Matrix2Xd Dynamics::get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj)
 {
     Eigen::Matrix2Xd linear_acc;
@@ -135,6 +135,7 @@ Eigen::Matrix2Xd Dynamics::get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX
 
     return torque;
 }
+ */
 
 InvDynamics::InvDynamics(){
     Kp = 20;
@@ -145,6 +146,8 @@ InvDynamics::InvDynamics(){
 
 Eigen::MatrixXd InvDynamics::feedforward_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj)
 {
+    Integrator vel_response(s.qd, dt);
+    Integrator pos_response(s.q, dt);
     Eigen::Matrix2Xd linear_acc;
     Eigen::MatrixXd torque;
     Eigen::VectorXd q_response, qd_response, qdd_response;
@@ -167,33 +170,31 @@ Eigen::MatrixXd InvDynamics::feedforward_torque(Eigen::MatrixX2d& qdd_traj, Eige
         gravity = get_gravity(q);
 
 
-        q_error   = q   - q_response;
-        qd_error  = qd  - qd_response;
-        qdd_error = qdd - qdd_response;
+        q_error   = q   - response.col(0);
+        qd_error  = qd  - response.col(1);
+        qdd_error = qdd - response.col(2);
 
         linear_acc = forward_recursion(qdd, qd, q);
-        torque.col(i) = backward_recursion( qdd, qd, q, linear_acc) + Kv * (qd - qd_response) + Kp * (q - q_response);
+        torque.col(i) = backward_recursion( qdd, qd, q, linear_acc) + Kv * qd_error + Kp * q_error;
 
-        response = state_response(q, qd, response, torque.col(i),  inertia_matrix, coriolis_matrix, gravity);
-        qdd_response = response.col(2);
-        qd_response  = response.col(1);
-        q_response   = response.col(0);
+        qdd_response = state_response(q, qd, response, torque.col(i),  inertia_matrix, coriolis_matrix, gravity);
+
+        qd_response = vel_response.integral(qdd_response);
+        q_response  = pos_response.integral(qd_response);
+
     }
     return torque;
 }
 
 
-Eigen::MatrixX3d InvDynamics::state_response(Eigen::VectorXd& q_des, Eigen::VectorXd& qd_des, Eigen::MatrixX3d& response,
+Eigen::VectorXd InvDynamics::state_response(Eigen::VectorXd& q_des, Eigen::VectorXd& qd_des,
         Eigen::VectorXd& torque, Eigen::MatrixXd& inertia, Eigen::MatrixXd& coriolis, Eigen::VectorXd& gravity)
 {
-    Eigen::VectorXd qdd_computed, qd_computed, q_computed;
+    Eigen::VectorXd qdd_computed;
 
-    qdd_computed = inertia.inverse() * (torque - coriolis * qd_des - bot.mass * gravity);
-    qd_computed  = integral(qdd_computed, response.col(2));
-    q_computed   = integral(computed, response.col(1));
+    qdd_computed = inertia.inverse() * (torque - coriolis * qd_des - gravity);
 
-    response = q_computed + qd_computed + qdd_computed;
-    return response;
+    return qdd_computed;
 }
 
 Eigen::Matrix2d Dynamics::inertia_tensor(Eigen::Vector2d& I){

@@ -14,6 +14,7 @@ struct Dynamics
     double g;
     double dt;
     SBot& bot;
+    State& s;
     Eigen::Vector2d link_length, link_cm, Iq;
     Eigen::Matrix2d Rq;
     std::unique_ptr<Eigen::Matrix2Xd> Torque;
@@ -45,7 +46,6 @@ struct Dynamics
 
 
 private:
-    State& s;
     //Jacobian variables
     enum Direction {X , Y};
     std::map<const Direction, std::function <Eigen::MatrixXd
@@ -54,13 +54,13 @@ private:
 
 struct InvDynamics : public Dynamics{
 
-    InvDynamics();
+    explicit InvDynamics();
 
 
     Eigen::VectorXd get_gravity(Eigen::VectorXd& q) override;
 
 
-    Eigen::MatrixX3d state_response(Eigen::VectorXd& q_des, Eigen::VectorXd& qd_des, Eigen::MatrixX3d& response,
+    Eigen::VectorXd state_response(Eigen::VectorXd& q_des, Eigen::VectorXd& qd_des,
                                     Eigen::VectorXd& torque, Eigen::MatrixXd& inertia, Eigen::MatrixXd& coriolis,
                                     Eigen::VectorXd& gravity);
 

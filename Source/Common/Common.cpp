@@ -59,8 +59,16 @@ Eigen::MatrixX2d derivative_array(Eigen::MatrixX2d& array, double& timestep)
 }
 
 
-Eigen::VectorXd integral(Eigen::VectorXd& vec)
+Integrator::Integrator(Eigen::VectorXd& vec_0, double& interval)
 {
+    y0 = std::make_unique<Eigen::VectorXd>(5, 1);
+    *y = vec_0;
+    y  = std::make_unique<Eigen::VectorXd>(5, 1);
+    dt = interval;
+}
 
-
+Eigen::VectorXd Integrator::integral(Eigen::VectorXd& vec_i){
+    *y = (vec_i * dt) + *y0;
+    *y0 = *y;
+    return *y;
 }
