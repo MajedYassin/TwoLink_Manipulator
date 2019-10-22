@@ -13,6 +13,8 @@ struct Dynamics
 {
     double g;
     double dt;
+    SBot& bot;
+    Eigen::Vector2d link_length, link_cm, Iq;
     Eigen::Matrix2d Rq;
     std::unique_ptr<Eigen::Matrix2Xd> Torque;
 
@@ -44,8 +46,6 @@ struct Dynamics
 
 private:
     State& s;
-    SBot& bot;
-    Eigen::Vector2d link_length, link_cm, Iq;
     //Jacobian variables
     enum Direction {X , Y};
     std::map<const Direction, std::function <Eigen::MatrixXd

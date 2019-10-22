@@ -278,14 +278,19 @@ Eigen::VectorXd InvDynamics::get_gravity(Eigen::VectorXd& q)
     grav = (Eigen::VectorXd(q.size(), 1) << 0.0, 0.0, 0.0).finished();
 
     for(int i= 0; i != q.size(); ++i){
+        grav(i) = 0.0;
         for(int n = i; n != q.size(); ++n){
             int m = i;
             double dq = 0.0;
+            double l = 0.0;
             while(m <= n){
                 dq += q(m);
+                if(m = n) l = link_cm(m);
+                else l = link_length(m);
+                grav(i) += bot.mass(n) * g * l * cos(dq);
+                l = link_length(m);
                 ++m;
             }
-            grav(i) += (g * cos(dq));
         }
     }
     return grav;
