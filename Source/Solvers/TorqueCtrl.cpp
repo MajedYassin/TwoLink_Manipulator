@@ -138,26 +138,19 @@ Eigen::Matrix2Xd Dynamics::get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX
 }
  */
 
-InvDynamics::InvDynamics(){
-    Kp = 20;
-    Kv = 5;
-    Kd = 1;
-}
 
-
-Eigen::MatrixXd InvDynamics::feedforward_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj)
+Eigen::MatrixXd InvDynamics::feedforward_torque(Eigen::MatrixXd& qdd_traj, Eigen::MatrixXd& qd_traj, Eigen::MatrixXd& q_traj)
 {
     Integrator vel_response(s.qd, dt);
     Integrator pos_response(s.q, dt);
     Eigen::Matrix2Xd linear_acc;
     Eigen::MatrixXd torque;
-    Eigen::VectorXd q_response, qd_response, qdd_response;
+    Eigen::VectorXd q_response, qd_response, qdd_response, torque_i, gravity;
     Eigen::VectorXd q_error, qd_error, qdd_error;
     q_response   = Eigen::VectorXd::Zero(q_traj.cols(), 1);
     qd_response  = Eigen::VectorXd::Zero(qd_traj.cols(), 1);
     qdd_response = Eigen::VectorXd::Zero(qdd_traj.cols(), 1);
-    Eigen::MatrixX3d response;
-    Eigen::MatrixXd inertia_matrix, coriolis_matrix, gravity;
+    Eigen::MatrixXd inertia_matrix, coriolis_matrix;
 
     for(int i = 0; i != q_traj.rows(); ++i)
     {
@@ -176,9 +169,11 @@ Eigen::MatrixXd InvDynamics::feedforward_torque(Eigen::MatrixX2d& qdd_traj, Eige
         qdd_error = qdd - qdd_response;
 
         linear_acc = forward_recursion(qdd, qd, q);
-        torque.col(i) = backward_recursion( qdd, qd, q, linear_acc) + Kv * qd_error + Kp * q_error;
+        torque_i = backward_recursion( qdd, qd, q, linear_acc) + Kv * qd_error + Kp * q_error;
 
-        qdd_response = state_response(q, qd, torque.col(i), inertia_matrix, coriolis_matrix, gravity);
+        torque.col(i) = torque_i;
+
+        qdd_response = state_response(q, qd, torque_i, inertia_matrix, coriolis_matrix, gravity);
 
         qd_response = vel_response.integral(qdd_response);
         q_response  = pos_response.integral(qd_response);

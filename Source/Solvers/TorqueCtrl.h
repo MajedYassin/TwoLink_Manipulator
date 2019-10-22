@@ -42,7 +42,7 @@ struct Dynamics
 
     Eigen::MatrixXd get_jacobian(Eigen::VectorXd& q, int link);
 
-    Eigen::Matrix2Xd get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj);
+    // Eigen::Matrix2Xd get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj);
 
 
 private:
@@ -54,7 +54,7 @@ private:
 
 struct InvDynamics : public Dynamics{
 
-    explicit InvDynamics();
+    InvDynamics();
 
 
     Eigen::VectorXd get_gravity(Eigen::VectorXd& q) override;
@@ -65,11 +65,13 @@ struct InvDynamics : public Dynamics{
                                     Eigen::VectorXd& gravity);
 
 
-    Eigen::MatrixXd feedforward_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj);
+    Eigen::MatrixXd feedforward_torque(Eigen::MatrixXd& qdd_traj, Eigen::MatrixXd& qd_traj, Eigen::MatrixXd& q_traj);
 
 
 private:
-    double Kv, Kp, Kd;
+    double Kp = 20;
+    double Kv = 5;
+    double Kd = 1;
 
 };
 

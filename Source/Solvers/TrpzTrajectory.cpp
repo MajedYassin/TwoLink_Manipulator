@@ -1,22 +1,21 @@
 //
 #include "TrpzTrajectory.h"
 
-TrapezTrajectory::TrapezTrajectory(SBot& sbot) : bot(sbot) {
-        q_traj   = std::make_unique<Eigen::MatrixX2d>(100, 2);
-        qd_traj  = std::make_unique<Eigen::MatrixX2d>(100, 2);
-        qdd_traj = std::make_unique<Eigen::MatrixX2d>(100, 2);
+TrapezTrajectory::TrapezTrajectory(SBot& sbot, State& state) : bot(sbot), s(state){
+        q_traj   = std::make_unique<Eigen::MatrixXd>(100, 2);
+        qd_traj  = std::make_unique<Eigen::MatrixXd>(100, 2);
+        qdd_traj = std::make_unique<Eigen::MatrixXd>(100, 2);
         t = 0.0;
-        h << 0.0, 0.0;
+        h << Eigen::VectorXd::Zero(state.q.size(), 1);
         hmax = 0.0; //Longest joint rotation requested
-        A << 0, 0; //Joint Actuator acceleration
+        A = Eigen::VectorXd::Zero(state.q.size(), 1); //Joint Actuator acceleration
         Vmax = bot.Vmax;
         dt = 0.01; //timestep
         T[a] = 0.0; // Acceleration time
         T[d] = 0.0; // Duration of Joint rotation
         x = 0; //iterator
-        Qa = Eigen::Matrix2d::Zero();
 
-        map[acc_phase] = [&](Eigen::MatrixX2d Q, Eigen::Vector2d A, std::map<const Time, double> T, Eigen::Vector2d q0){
+        map[acc_phase] = [&](Eigen::MatrixXd Q, Eigen::VectorXd A, std::map<const Time, double> T, Eigen::VectorXd q0){
             for(int n = 0; n != A.size(); ++n) {
                 while (t != T[a]) {
                     Q(x, n) = q0(n) + (0.5 * A(n)) * pow((t - 0.0), 2);
@@ -27,7 +26,7 @@ TrapezTrajectory::TrapezTrajectory(SBot& sbot) : bot(sbot) {
             t = 0.0; //resetting time counter
             return Q;
         };
-        map[const_velocity] = [&] (Eigen::MatrixX2d Q, Eigen::Vector2d A, std::map<const Time, double> T, Eigen::Vector2d q0){
+        map[const_velocity] = [&] (Eigen::MatrixXd Q, Eigen::VectorXd A, std::map<const Time, double> T, Eigen::VectorXd q0){
             for(int n = 0; n != A.size(); ++n) {
                 t = T[a];
                 while ( t != T[d] - T[a]) {
@@ -38,7 +37,7 @@ TrapezTrajectory::TrapezTrajectory(SBot& sbot) : bot(sbot) {
             }
             return Q;
         };
-        map[decel_phase] = [&] (Eigen::MatrixX2d Q, Eigen::Vector2d A, std::map<const Time, double> T, Eigen::Vector2d qf){
+        map[decel_phase] = [&] (Eigen::MatrixXd Q, Eigen::VectorXd A, std::map<const Time, double> T, Eigen::VectorXd qf){
             for(int n = 0; n != A.size(); ++n) {
                 t = T[d] - T[a];
                 while (t != T[d]) {
@@ -52,14 +51,14 @@ TrapezTrajectory::TrapezTrajectory(SBot& sbot) : bot(sbot) {
 };
 
 
-Eigen::MatrixX2d TrapezTrajectory::velocity_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf){
+Eigen::MatrixXd TrapezTrajectory::velocity_traj(Eigen::VectorXd& q0, Eigen::VectorXd& qf){
     *q_traj = tr_traj(q0, qf);
     *qd_traj = derivative_array(*q_traj, dt);
     return *qd_traj;
 }
 
 //Need fix to allow user to request only acc_traj without calling velocity_traj
-Eigen::MatrixX2d TrapezTrajectory::acc_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf){
+Eigen::MatrixXd TrapezTrajectory::acc_traj(Eigen::VectorXd& q0, Eigen::VectorXd& qf){
     TrapezTrajectory::velocity_traj(q0, qf);
     return derivative_array(*qd_traj, dt);
 }
@@ -100,10 +99,11 @@ void TrapezTrajectory::joint_acceleration()
     }
 }
 
-Eigen::MatrixX2d TrapezTrajectory::tr_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf){
+Eigen::MatrixXd TrapezTrajectory::tr_traj(Eigen::VectorXd& q0, Eigen::VectorXd& qf){
 
-    //Change in joint orientation q0 = inital joint angles, qf = final joint angles;
+    //Change in joint orientation q0 = initial joint angles, qf = final joint angles;
     h = qf - q0;
+    Eigen::MatrixXd Qa;
 
     prioritise();
 

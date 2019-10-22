@@ -3,6 +3,7 @@
 #define TWOLINK_MANIP_TRAPEZTRAJECTORY_H
 
 #include "../Bot/Sbot.h"
+#include "../Bot/State.h"
 #include <Eigen/Dense>
 #include "../Common/Common.h"
 #include <cmath>
@@ -15,11 +16,11 @@
 struct TrapezTrajectory{
 
 public:
-    std::unique_ptr<Eigen::MatrixX2d> q_traj;
-    std::unique_ptr<Eigen::MatrixX2d> qd_traj;
-    std::unique_ptr<Eigen::MatrixX2d> qdd_traj;
+    std::unique_ptr<Eigen::MatrixXd> q_traj;
+    std::unique_ptr<Eigen::MatrixXd> qd_traj;
+    std::unique_ptr<Eigen::MatrixXd> qdd_traj;
 
-    explicit TrapezTrajectory(SBot& sbot);
+    explicit TrapezTrajectory(SBot& sbot, State& s);
 
     void prioritise();
 
@@ -33,17 +34,18 @@ public:
     void duration();
 
 
-    Eigen::MatrixX2d tr_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
+    Eigen::MatrixXd tr_traj(Eigen::VectorXd& q0, Eigen::VectorXd& qf);
 
 
-    Eigen::MatrixX2d velocity_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
+    Eigen::MatrixXd velocity_traj(Eigen::VectorXd& q0, Eigen::VectorXd& qf);
 
 
-    Eigen::MatrixX2d acc_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
+    Eigen::MatrixXd acc_traj(Eigen::VectorXd& q0, Eigen::VectorXd& qf);
 
 
 private:
     SBot& bot;
+    State s;
     double hmax;
     double Vmax;
     double t;
@@ -53,10 +55,9 @@ private:
     enum Time {a, d};
     std::map<const Time, double> T;
     std::map<const Phase, std::function<Eigen::MatrixX2d
-            (Eigen::MatrixX2d, Eigen::Vector2d, std::map<const Time, double>, Eigen::Vector2d)>> map;
-    Eigen::Vector2d h;
-    Eigen::Vector2d A;
-    Eigen::MatrixX2d Qa;
+            (Eigen::MatrixXd, Eigen::VectorXd, std::map<const Time, double>, Eigen::VectorXd)>> map;
+    Eigen::VectorXd h;
+    Eigen::VectorXd A;
 };
 
 #endif //TWOLINK_MANIP_TRAPEZTRAJECTORY_H
