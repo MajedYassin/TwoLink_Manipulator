@@ -22,25 +22,25 @@ struct Dynamics
     explicit Dynamics(State& state, SBot& sbot);
 
 
-    Eigen::MatrixXd forward_recursion(Eigen::VectorXd& qdd, Eigen::VectorXd& qd, Eigen::VectorXd& q);
+    Eigen::Matrix2d forward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
 
 
-    Eigen::VectorXd backward_recursion(Eigen::VectorXd& qdd, Eigen::VectorXd& qd, Eigen::VectorXd& q, Eigen::Matrix2Xd& linear_acc);
+    Eigen::Vector2d backward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, Eigen::Matrix2d& linear_acc);
 
 
     static Eigen::Matrix2d inertia_tensor(Eigen::Vector2d& I);
 
 
-    Eigen::MatrixXd get_inertia_matrix(Eigen::VectorXd& q);
+    Eigen::Matrix2d get_inertia_matrix(Eigen::Vector2d& q);
 
 
    // void get_coriolis_matrix();
 
 
-    virtual Eigen::VectorXd get_gravity(Eigen::VectorXd& q);
+    virtual Eigen::Vector2d get_gravity(Eigen::Vector2d& q);
 
 
-    Eigen::MatrixXd get_jacobian(Eigen::VectorXd& q, int link);
+    Eigen::Matrix2d get_jacobian(Eigen::Vector2d& q, int link);
 
     // Eigen::Matrix2Xd get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj);
 
@@ -48,8 +48,8 @@ struct Dynamics
 private:
     //Jacobian variables
     enum Direction {X , Y};
-    std::map<const Direction, std::function <Eigen::MatrixXd
-            (Eigen::MatrixXd, Eigen::VectorXd, int)>> Component;
+    std::map<const Direction, std::function <Eigen::Matrix2d
+            (Eigen::Matrix2d, Eigen::Vector2d, int)>> Component;
 };
 
 struct InvDynamics : public Dynamics{
@@ -57,15 +57,15 @@ struct InvDynamics : public Dynamics{
     InvDynamics();
 
 
-    Eigen::VectorXd get_gravity(Eigen::VectorXd& q) override;
+    Eigen::Vector2d get_gravity(Eigen::Vector2d& q) override;
 
 
-    Eigen::VectorXd state_response(Eigen::VectorXd& q_des, Eigen::VectorXd& qd_des,
-                                    Eigen::VectorXd& torque, Eigen::MatrixXd& inertia, Eigen::MatrixXd& coriolis,
-                                    Eigen::VectorXd& gravity);
+    Eigen::Vector2d state_response(Eigen::Vector2d& q_des, Eigen::Vector2d& qd_des,
+                                    Eigen::Vector2d& torque, Eigen::Matrix2d& inertia, Eigen::Matrix2d& coriolis,
+                                    Eigen::Vector2d& gravity);
 
 
-    Eigen::MatrixXd feedforward_torque(Eigen::MatrixXd& qdd_traj, Eigen::MatrixXd& qd_traj, Eigen::MatrixXd& q_traj);
+    Eigen::Matrix2Xd feedforward_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj);
 
 
 private:

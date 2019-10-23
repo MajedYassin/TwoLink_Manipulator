@@ -3,7 +3,7 @@
 //Common mathematical functions and operation used in the Solvers
 
 //Can Use Eigen::Rotation2D<double> rot2(double& q);
-Eigen::MatrixXd Rot(double& q)
+Eigen::Matrix2d Rot(double& q)
 {
     double A11 = cos(q);
     double A21 = sin(q);
@@ -14,7 +14,7 @@ Eigen::MatrixXd Rot(double& q)
     return M;
 }
 //Can Use Eigen::Translation<double,2>(tx, ty)
-Eigen::MatrixXd Transl(double& x, double& y)
+Eigen::MatrixX3d Transl(double& x, double& y)
 {
     Eigen::MatrixXd T = Eigen::MatrixXd::Identity(2, 3);
     T(0, 3) = x;
@@ -22,7 +22,7 @@ Eigen::MatrixXd Transl(double& x, double& y)
     return T;
 }
 
-Eigen::MatrixXd FindPose(double& x, double& y, double& q)
+Eigen::Matrix2d FindPose(double& x, double& y, double& q)
 {
     return Rot(q) * Transl(x, y);
 }
@@ -59,14 +59,14 @@ Eigen::MatrixXd derivative_array(Eigen::MatrixXd& array, double& timestep)
 }
 
 
-Integrator::Integrator(Eigen::VectorXd& vec_0, double& interval)
+Integrator::Integrator(Eigen::Vector2d& vec_0, double& interval)
 {
-    y0 = Eigen::VectorXd::Zero(vec_0.size(), 1);
+    y0 = Eigen::Vector2d::Zero();
     y = vec_0;
     dt = interval;
 }
 
-Eigen::VectorXd Integrator::integral(Eigen::VectorXd& vec_i){
+Eigen::Vector2d Integrator::integral(Eigen::Vector2d& vec_i){
     y = (vec_i * dt) + y0;
     y0 = y;
     return y;

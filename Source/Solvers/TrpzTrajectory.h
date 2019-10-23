@@ -34,13 +34,13 @@ public:
     void duration();
 
 
-    Eigen::MatrixXd tr_traj(Eigen::VectorXd& q0, Eigen::VectorXd& qf);
+    Eigen::MatrixXd tr_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
 
 
-    Eigen::MatrixXd velocity_traj(Eigen::VectorXd& q0, Eigen::VectorXd& qf);
+    Eigen::MatrixXd velocity_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
 
 
-    Eigen::MatrixXd acc_traj(Eigen::VectorXd& q0, Eigen::VectorXd& qf);
+    Eigen::MatrixXd acc_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
 
 
 private:
@@ -55,9 +55,9 @@ private:
     enum Time {a, d};
     std::map<const Time, double> T;
     std::map<const Phase, std::function<Eigen::MatrixX2d
-            (Eigen::MatrixXd, Eigen::VectorXd, std::map<const Time, double>, Eigen::VectorXd)>> map;
-    Eigen::VectorXd h;
-    Eigen::VectorXd A;
+            (Eigen::MatrixXd, Eigen::Vector2d, std::map<const Time, double>, Eigen::Vector2d)>> map;
+    Eigen::Vector2d h;
+    Eigen::Vector2d A;
 };
 
 #endif //TWOLINK_MANIP_TRAPEZTRAJECTORY_H

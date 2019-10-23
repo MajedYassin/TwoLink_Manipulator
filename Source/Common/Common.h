@@ -8,11 +8,11 @@
 #include <memory>
 
 
-Eigen::MatrixXd Rot(double& q);
+Eigen::Matrix2d Rot(double& q);
 
-Eigen::MatrixXd Transl(double& x, double& y);
+Eigen::MatrixX3d Transl(double& x, double& y);
 
-Eigen::MatrixXd FindPose(double& x, double& y, double& q);
+Eigen::Matrix2d FindPose(double& x, double& y, double& q);
 
 struct Coordinates{
     double X, Y;
@@ -34,13 +34,13 @@ Eigen::MatrixXd derivative_array(Eigen::MatrixXd& array, double& timestep);
 
 struct Integrator{
 
-    Eigen::VectorXd y, y0;
+    Eigen::Vector2d y, y0;
     double dt;
 
-    Integrator(Eigen::VectorXd& vec_0, double& interval);
+    Integrator(Eigen::Vector2d& vec_0, double& interval);
 
 
-    Eigen::VectorXd integral(Eigen::VectorXd& vec_i);
+    Eigen::Vector2d integral(Eigen::Vector2d& vec_i);
 
 };
 
