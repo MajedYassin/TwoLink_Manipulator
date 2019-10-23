@@ -5,6 +5,7 @@
 #include "../Bot/State.h"
 #include "../Bot/Sbot.h"
 #include "../Common/Common.h"
+#include <vector>
 #include <memory>
 #include <map>
 #include <functional>
@@ -28,13 +29,13 @@ struct Dynamics
     Eigen::Vector2d backward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, Eigen::Matrix2d& linear_acc);
 
 
-    static Eigen::Matrix2d inertia_tensor(Eigen::Vector2d& I);
+    Eigen::Matrix2d inertia_tensor(Eigen::Vector2d& I);
 
 
     Eigen::Matrix2d get_inertia_matrix(Eigen::Vector2d& q);
 
 
-   // void get_coriolis_matrix();
+    Eigen::Matrix2d get_coriolis_matrix(Eigen::Vector2d& q, Eigen::Vector2d& q0, Eigen::Vector2d& qd, Eigen::Matrix2d& M);
 
 
     virtual Eigen::Vector2d get_gravity(Eigen::Vector2d& q);
