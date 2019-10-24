@@ -51,7 +51,7 @@ TrapezTrajectory::TrapezTrajectory(SBot& sbot, State& state) : bot(sbot), s(stat
 };
 
 
-Eigen::MatrixXd TrapezTrajectory::velocity_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf){
+Eigen::MatrixXd TrapezTrajectory::vel_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf){
     *q_traj = tr_traj(q0, qf);
     *qd_traj = derivative_array(*q_traj, dt);
     return *qd_traj;
@@ -59,7 +59,7 @@ Eigen::MatrixXd TrapezTrajectory::velocity_traj(Eigen::Vector2d& q0, Eigen::Vect
 
 //Need fix to allow user to request only acc_traj without calling velocity_traj
 Eigen::MatrixXd TrapezTrajectory::acc_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf){
-    TrapezTrajectory::velocity_traj(q0, qf);
+    TrapezTrajectory::vel_traj(q0, qf);
     return derivative_array(*qd_traj, dt);
 }
 

@@ -18,7 +18,6 @@ struct Dynamics
     State& s;
     Eigen::Vector2d link_length, link_cm, Iq;
     Eigen::Matrix2d Rq;
-    std::unique_ptr<Eigen::Matrix2Xd> Torque;
 
     explicit Dynamics(State& state, SBot& sbot);
 
@@ -29,22 +28,7 @@ struct Dynamics
     Eigen::Vector2d backward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, Eigen::Matrix2d& linear_acc);
 
 
-    Eigen::Matrix2d inertia_tensor(Eigen::Vector2d& I);
-
-
-    Eigen::Matrix2d get_inertia_matrix(Eigen::Vector2d& q);
-
-
-    Eigen::Matrix2d get_coriolis_matrix(Eigen::Vector2d& q, Eigen::Vector2d& q0, Eigen::Vector2d& qd, Eigen::Matrix2d& M);
-
-
     virtual Eigen::Vector2d get_gravity(Eigen::Vector2d& q);
-
-
-    Eigen::Matrix2d get_jacobian(Eigen::Vector2d& q, int link);
-
-    // Eigen::Matrix2Xd get_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj);
-
 
 private:
     //Jacobian variables
@@ -58,6 +42,18 @@ struct InvDynamics : public Dynamics{
     InvDynamics();
 
 
+    Eigen::Matrix2d inertia_tensor(Eigen::Vector2d& I);
+
+
+    Eigen::Matrix2d get_inertia_matrix(Eigen::Vector2d& q);
+
+
+    Eigen::Matrix2d get_coriolis_matrix(Eigen::Vector2d& q, Eigen::Vector2d& q0, Eigen::Vector2d& qd, Eigen::Matrix2d& M);
+
+
+    Eigen::Matrix2d get_jacobian(Eigen::Vector2d& q, int link);
+
+
     Eigen::Vector2d get_gravity(Eigen::Vector2d& q) override;
 
 
@@ -66,13 +62,18 @@ struct InvDynamics : public Dynamics{
                                     Eigen::Vector2d& gravity);
 
 
-    Eigen::Matrix2Xd feedforward_torque(Eigen::MatrixX2d& qdd_traj, Eigen::MatrixX2d& qd_traj, Eigen::MatrixX2d& q_traj);
+    Eigen::Matrix2Xd feedforward_torque(Eigen::MatrixX2d& acc_traj, Eigen::MatrixX2d& vel_traj, Eigen::MatrixX2d& pos_traj);
 
 
 private:
     double Kp = 20;
     double Kv = 5;
-    double Kd = 1;
+    //double Kd = 1;
+
+    //Jacobian variables
+    enum Direction {X , Y};
+    std::map<const Direction, std::function <Eigen::Matrix2d
+            (Eigen::Matrix2d, Eigen::Vector2d, int)>> Component;
 
 };
 

@@ -37,7 +37,7 @@ public:
     Eigen::MatrixXd tr_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
 
 
-    Eigen::MatrixXd velocity_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
+    Eigen::MatrixXd vel_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
 
 
     Eigen::MatrixXd acc_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
