@@ -11,6 +11,8 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+#include <gtest/gtest.h>
+
 
 
 struct TrapezTrajectory{

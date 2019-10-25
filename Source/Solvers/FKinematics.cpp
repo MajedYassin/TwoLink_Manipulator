@@ -2,7 +2,7 @@
 
 //The Forward Kinematics Function Calculates the End-effector Pose of Two Link Manipulator
 //Based onLink Parameters provided from the SBot struct and the Execution Interface which calls the FKin function below
-//The function gives the end-effector pose for the joint angles q1b and q2b obtained from the ExecInt struct
+//The function gives the end-effector pose for the joint angles q1b and q2b obtained from the OpInt struct
 
 
 

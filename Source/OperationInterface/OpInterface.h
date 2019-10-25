@@ -1,21 +1,20 @@
 
-#ifndef TWOLINK_MANIP_EXECINTERFACE_H
-#define TWOLINK_MANIP_EXECINTERFACE_H
+#ifndef TWOLINK_MANIP_OPINTERFACE_H
+#define TWOLINK_MANIP_OPINTERFACE_H
 
 #include <Eigen/Dense>
-#include "../Common/Common.h"
 #include "../Bot/Sbot.h"
 #include "../Solvers/TrpzTrajectory.h"
 #include "../Solvers/TorqueCtrl.h"
 
-//The ExecutionInterface computes the Inital and final properties of the model e.g. pose, and
+//The OperationInterface computes the Inital and final properties of the model e.g. pose, and
 //calls the functions of the Solver to execute the calculations necessary to compute:
 //The Inverse Kinematics, Forward Kinematics or Required Torque of the Two Link Robot
 //The Interface runs based on parameters specified in the bot parameters struct, SBot.
 
 
 
-struct ExecInt
+struct OpInt
 {
     //Operations
     State s;
@@ -26,7 +25,7 @@ struct ExecInt
     Eigen::Vector2d set_position;
 
 
-    explicit ExecInt(State& instance, TrapezTrajectory& traj, Dynamics& trqcontrol, Eigen::Vector2d& joint_configuration, SBot& bot) : trajectory(traj), torque(), s(instance), sbot(bot)
+    explicit OpInt(State& instance, TrapezTrajectory& traj, Dynamics& trqcontrol, Eigen::Vector2d& joint_configuration, SBot& bot) : trajectory{traj}, torque{}, s(instance), sbot(bot)
     {
         Q = Eigen::MatrixX2d::Zero();
         set_position = joint_configuration;
@@ -54,4 +53,4 @@ struct ExecInt
 
 };
 
-#endif //TWOLINK_MANIP_EXECINTERFACE_H
+#endif //TWOLINK_MANIP_OPINTERFACE_H
