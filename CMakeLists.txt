@@ -3,6 +3,7 @@ project(TwoLink_manip)
 
 set(CMAKE_CXX_STANDARD 14)
 
+include(FetchContent)
 include_directories(Source)
 
 add_subdirectory(Source)

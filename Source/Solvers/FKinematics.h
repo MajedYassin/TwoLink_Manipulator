@@ -5,6 +5,8 @@
 #include "../Bot/State.h"
 #include "../Bot/Sbot.h"
 #include "../Common/Common.h"
+#include <vector>
+#include <Eigen/Dense>
 
 namespace ForwardKinematics {
     Eigen::Matrix3d f_kin(SBot &bot, State &s, Eigen::Vector2d& qf);

@@ -9,7 +9,7 @@ Eigen::Matrix2d Rot(double& q)
     double A21 = sin(q);
     double A12 = -1 * A21;
     double A22 = A11;
-    Eigen::MatrixXd M(2, 2);
+    Eigen::Matrix2d M(2, 2);
     M << A11, A12, A21, A22;
     return M;
 }

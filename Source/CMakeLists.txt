@@ -32,8 +32,13 @@ add_subdirectory(OperationInterface)
 ##Solver cpp directories
 set(SOLVER_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/InvKinematics.cpp"
         "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/FKinematics.cpp"
-        "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/TorqueCtrl.cpp")
-set(TRAJ_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/TrpzTrajectory.cpp")
+        "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/TorqueCtrl.cpp"
+        "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/TrpzTrajectory.cpp")
+
+set(SOLVER_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/InvKinematics.h"
+        "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/FKinematics.h"
+        "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/TrpzTrajectory.h"
+        "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/TorqueCtrl.h")
 
 ##Struct Header Files
 set(INT_DIR "${TwoLink_manip_SOURCE_DIR}/Source/OperationInterface/OpInterface.h")
@@ -45,8 +50,12 @@ set(COMMON_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Common/Common.cpp")
 set(COMMON_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Common/Common.h")
 
 
-add_library(source_library ${SOLVER_DIR} ${SOLVER_LIST} ${INT_DIR} ${BOT_LIST} ${STATE_HEADER} ${COMMON_DIR} ${TRAJ_DIR})
+add_library(source_library ${SOLVER_DIR} ${SOLVER_LIST} ${INT_DIR} ${BOT_LIST} ${STATE_HEADER} ${COMMON_DIR})
 
+set(FKINE_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/FKinematics.cpp")
+set(FKINE_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/FKinematics.h")
 
+add_library(fkine_lib ${FKINE_LIST} ${FKINE_DIR} ${BOT_LIST} ${STATE_HEADER} ${COMMON_DIR})
+target_link_libraries(fkine_lib PUBLIC ${COMMON_LIST} gtest gtest_main Catch2::Catch2 eigen)
 
 target_link_libraries(source_library PUBLIC ${COMMON_LIST} gtest gtest_main Catch2::Catch2 eigen)
