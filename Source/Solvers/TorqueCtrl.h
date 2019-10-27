@@ -40,7 +40,7 @@ private:
 
 struct InvDynamics : public Dynamics{
 
-    InvDynamics();
+    InvDynamics() = default;
 
 
     //Eigen::Matrix2d inertia_tensor(Eigen::Vector2d& I);
@@ -71,7 +71,7 @@ struct InvDynamics : public Dynamics{
                                     Eigen::Vector2d& gravity);
 
 
-    Eigen::Matrix2Xd feedforward_torque(Eigen::MatrixX2d& acc_traj, Eigen::MatrixX2d& vel_traj, Eigen::MatrixX2d& pos_traj);
+    Eigen::Matrix2Xd feedforward_torque(std::vector<Eigen::Vector2d>& pos_traj, std::vector<Eigen::Vector2d>& vel_traj, std::vector<Eigen::Vector2d>& acc_traj);
 
 
 private:

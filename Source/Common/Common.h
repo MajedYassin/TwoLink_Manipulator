@@ -10,26 +10,21 @@
 
 Eigen::Matrix2d Rot(double& q);
 
-Eigen::MatrixX3d Transl(double& x, double& y);
+Eigen::Matrix3d Transl(double& x, double& y);
 
-Eigen::Matrix2d FindPose(double& x, double& y, double& q);
+Eigen::Matrix3d FindPose(double& x, double& y, double& q);
 
-struct Coordinates{
+struct Coord{
     double X, Y;
-    Coordinates(Eigen::Matrix3d& M){
+
+    explicit Coord(Eigen::Matrix3d& M){
         X = M(1, 3);
         Y = M(2, 3);
     }
 
 };
 
-template <typename T>
-void Print(T& var);
-
-template <typename T>
-void Print_vector(T& vector);
-
-Eigen::MatrixXd derivative_array(Eigen::MatrixXd& array, double& timestep);
+std::vector<Eigen::Vector2d> derivative_array(std::vector<Eigen::Vector2d>& array, double& timestep);
 
 
 struct Integrator{

@@ -1,4 +1,6 @@
 #include "FKinematics.h"
+#include "../Common/Common.h"
+#include <vector>
 
 //The Forward Kinematics Function Calculates the End-effector Pose of Two Link Manipulator
 //Based onLink Parameters provided from the SBot struct and the Execution Interface which calls the FKin function below
@@ -16,6 +18,7 @@ Eigen::Matrix3d ForwardKinematics::f_kin(SBot& bot, State& s, Eigen::Vector2d& q
     R.clear();
     T.clear();
 
+
     Eigen::Vector2d dq;
     int n = 0; //number of links
 
@@ -24,11 +27,12 @@ Eigen::Matrix3d ForwardKinematics::f_kin(SBot& bot, State& s, Eigen::Vector2d& q
     while( n != qf.size()) {
         for (int i = 0; i != qf.size(); ++i) {
             dq(i) = qf(i) - s.q(i); //Desired joint rotation (final - initial)
-            R[i]  = Eigen::Matrix3d::Identity();
-            R[i].block<2,2>(0, 0) = Rot(dq(i)); //function Rot returns a 2x2 matrix
-            T[i]  = Transl(bot.link_length(i), bot.joint_displaced(i));
+            R.emplace_back(Eigen::Matrix3d::Identity());
+            R.back().block<2,2>(0, 0) = Rot(dq(i)); //function Rot returns a 2x2 matrix
+            T.emplace_back(Transl(bot.link_length(i), bot.joint_displaced(i)));
         }
         (endpose *= R[n] ) * T[n];
+        ++n;
     }
 
     return endpose;

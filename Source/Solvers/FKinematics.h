@@ -4,8 +4,6 @@
 
 #include "../Bot/State.h"
 #include "../Bot/Sbot.h"
-#include "../Common/Common.h"
-#include <vector>
 #include <Eigen/Dense>
 
 namespace ForwardKinematics {

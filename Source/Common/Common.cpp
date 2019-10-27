@@ -14,46 +14,33 @@ Eigen::Matrix2d Rot(double& q)
     return M;
 }
 //Can Use Eigen::Translation<double,2>(tx, ty)
-Eigen::MatrixX3d Transl(double& x, double& y)
+Eigen::Matrix3d Transl(double& x, double& y)
 {
-    Eigen::MatrixXd T = Eigen::MatrixXd::Identity(2, 3);
-    T(0, 3) = x;
-    T(1, 3) = y;
+    Eigen::Matrix3d T = Eigen::Matrix3d::Identity();
+    T(0, 2) = x;
+    T(1, 2) = y;
     return T;
 }
 
-Eigen::Matrix2d FindPose(double& x, double& y, double& q)
+Eigen::Matrix3d FindPose(double& x, double& y, double& q)
 {
-    return Rot(q) * Transl(x, y);
+    Eigen::Matrix3d R = Eigen::Matrix3d::Identity();
+    R.block<2,2>(0, 0) = Rot(q);
+    return R * Transl(x, y);
 }
 
 
-template <typename T>
-void Print_vector(T& vector){
-    for( int i = 0; i != vector.size(); ++i)
-    {
-        std::cout << vector(i) << std::endl;
-    }
-}
 
-template <typename T>
-void Print(T& var){
-    std::cout << var << std::endl;
-}
 
-Eigen::MatrixXd derivative_array(Eigen::MatrixXd& array, double& timestep)
+std::vector<Eigen::Vector2d> derivative_array(std::vector<Eigen::Vector2d>& array, double& timestep)
 {
-    auto length = array.rows();
-    auto links  = array.cols();
-    Eigen::MatrixXd diff_array = Eigen::MatrixXd::Zero(length, links);
-    int j = 0;
-    while(j != 2)
+    auto length = array.size();
+    auto links  = array[0].rows();
+    std::vector<Eigen::Vector2d> diff_array;
+
+    for (int i = 0; i != length; ++i)
     {
-        for (int i = 0; i < length; ++i)
-        {
-            diff_array(i,j) = (array(i+1, j)- array(i, j))/ timestep;
-        }
-        ++j;
+        diff_array.emplace_back((array[i+1] - array[i]) / timestep);
     }
     return diff_array;
 }

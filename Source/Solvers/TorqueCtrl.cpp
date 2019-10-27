@@ -109,7 +109,7 @@ Eigen::Vector2d Dynamics::backward_recursion(Eigen::Vector2d& qdd, Eigen::Vector
 }
 
 
-Eigen::Matrix2Xd InvDynamics::feedforward_torque(Eigen::MatrixX2d& acc_traj, Eigen::MatrixX2d& vel_traj, Eigen::MatrixX2d& pos_traj)
+Eigen::Matrix2Xd InvDynamics::feedforward_torque(std::vector<Eigen::Vector2d>& pos_traj, std::vector<Eigen::Vector2d>& vel_traj, std::vector<Eigen::Vector2d>& acc_traj)
 {
     Integrator velocity_response(s.qd, dt);
     Integrator position_response(s.q, dt);
@@ -124,13 +124,13 @@ Eigen::Matrix2Xd InvDynamics::feedforward_torque(Eigen::MatrixX2d& acc_traj, Eig
     acc_response = Eigen::Vector2d::Zero();
     Eigen::Vector2d inertia, coriolis, gravity;
 
-    for(int i = 0; i != pos_traj.rows(); ++i)
+    for(int i = 0; i != pos_traj.size(); ++i)
     {
         initial_position = q;
 
-        qdd = acc_traj.row(i);
-        qd  = vel_traj.row(i);
-        q   = pos_traj.row(i);
+        qdd = acc_traj[i];
+        qd  = vel_traj[i];
+        q   = pos_traj[i];
 
         //coriolis = get_coriolis_matrix(q, initial_position, qd, inertia);
         //inertia  = get_inertia_matrix(q);
@@ -181,7 +181,7 @@ Eigen::Vector2d InvDynamics::get_gravity_vector(Eigen::Vector2d& q)
     return gravity_vec;
 }
 
-//Inertia component of the torques: Inertia Matrix M(q) * qdd(angula acceleration vector);
+//Inertia component of the torques: Inertia Matrix M(q) * qdd(angular acceleration vector);
 Eigen::Vector2d InvDynamics::get_inertia_vector(Eigen::Vector2d& q, Eigen::Vector2d& qdd, Eigen::Vector2d gravity)
 {
     Eigen::Vector2d at_rest = Eigen::Vector2d::Zero();
@@ -196,9 +196,11 @@ Eigen::Vector2d InvDynamics::get_inertia_vector(Eigen::Vector2d& q, Eigen::Vecto
 //Coriolis (coriolis + centrifugal) component of the torques: Coriolis Matrix C(q, qd) * qd;
 Eigen::Vector2d InvDynamics::get_coriolis_vector(Eigen::Vector2d& q, Eigen::Vector2d& qd, Eigen::Vector2d& qdd, Eigen::Vector2d& gravity, Eigen::Vector2d& inertia)
 {
-    Eigen::Matrix2d linear_acc = forward_recursion(qdd, qd, q);
+    Eigen::Vector2d at_rest = Eigen::Vector2d::Zero();
 
-    Eigen::Vector2d coriolis_vec = backward_recursion(qdd, qd, q, linear_acc) - gravity - inertia;
+    Eigen::Matrix2d linear_acc = forward_recursion(at_rest, qd, q);
+
+    Eigen::Vector2d coriolis_vec = backward_recursion(at_rest, qd, q, linear_acc) - gravity;
 
     return coriolis_vec;
 }
