@@ -21,11 +21,11 @@ struct SBot
     double Vmax;
 
     SBot(){
-        link_length = (Eigen::Vector2d(2, 1) <<0.2, 0.2).finished();
-        link_cm = (Eigen::Vector2d(2, 1) <<0.1, 0.1).finished();
-        mass = (Eigen::Vector2d(2, 1) <<1.0, 1.0).finished();
+        link_length = (Eigen::Vector2d(2) << 0.5, 0.5).finished();
+        link_cm = (Eigen::Vector2d(2) << 0.1, 0.1).finished();
+        mass = (Eigen::Vector2d(2) << 1.0, 1.0).finished();
         link_inertia = (Eigen::Vector2d(2, 1) << Inertia1, Inertia2).finished();
-        joint_displaced = (Eigen::Vector2d(2) <<0.0, 0.0).finished();
+        joint_displaced = (Eigen::Vector2d(2) << 0.0, 0.0).finished();
         Amax = 8.0;
         Vmax = 10.0;
     }

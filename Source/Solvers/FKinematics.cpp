@@ -15,9 +15,6 @@ Eigen::Matrix3d ForwardKinematics::f_kin(SBot& bot, State& s, Eigen::Vector2d& q
 
     //T: Vector of n Translation Matrices; R: Vector of n Rotational Matrices;
     std::vector<Eigen::Matrix3d> R, T;
-    R.clear();
-    T.clear();
-
 
     Eigen::Vector2d dq;
     int n = 0; //number of links
@@ -28,10 +25,10 @@ Eigen::Matrix3d ForwardKinematics::f_kin(SBot& bot, State& s, Eigen::Vector2d& q
         for (int i = 0; i != qf.size(); ++i) {
             dq(i) = qf(i) - s.q(i); //Desired joint rotation (final - initial)
             R.emplace_back(Eigen::Matrix3d::Identity());
-            R.back().block<2,2>(0, 0) = Rot(dq(i)); //function Rot returns a 2x2 matrix
+            (R.back()).block<2,2>(0, 0) = Rot(dq(i)); //function Rot returns a 2x2 matrix
             T.emplace_back(Transl(bot.link_length(i), bot.joint_displaced(i)));
         }
-        (endpose *= R[n] ) * T[n];
+        endpose = ((endpose * R[n] ) * T[n]);
         ++n;
     }
 

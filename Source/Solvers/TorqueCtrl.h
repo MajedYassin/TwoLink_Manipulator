@@ -22,6 +22,9 @@ struct Dynamics
     explicit Dynamics(State& state, SBot& sbot);
 
 
+    Eigen::Vector2d get_torque(Eigen::Vector2d& q, Eigen::Vector2d& qd, Eigen::Vector2d& qdd);
+
+
     Eigen::Matrix2d forward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
 
 
@@ -29,13 +32,16 @@ struct Dynamics
 
 
 
-    virtual Eigen::Vector2d get_gravity(Eigen::Vector2d& q);
+    virtual Eigen::Matrix2d get_gravity(Eigen::Vector2d& q);
 
 private:
     //Jacobian variables
     enum Direction {X , Y};
     std::map<const Direction, std::function <Eigen::Matrix2d
             (Eigen::Matrix2d, Eigen::Vector2d, int)>> Component;
+    enum Location { c, e };
+    std::map<const Location, std::function <Eigen::Matrix2d
+            (Eigen::Vector2d& , Eigen::Vector2d& )>> Acceleration;
 };
 
 struct InvDynamics : public Dynamics{

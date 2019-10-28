@@ -3,18 +3,18 @@
 //Common mathematical functions and operation used in the Solvers
 
 //Can Use Eigen::Rotation2D<double> rot2(double& q);
-Eigen::Matrix2d Rot(double& q)
+Eigen::Matrix2d Rot(double q)
 {
     double A11 = cos(q);
-    double A21 = sin(q);
-    double A12 = -1 * A21;
+    double A12 = sin(q);
+    double A21 = -1 * A12;
     double A22 = A11;
     Eigen::Matrix2d M(2, 2);
     M << A11, A12, A21, A22;
     return M;
 }
 //Can Use Eigen::Translation<double,2>(tx, ty)
-Eigen::Matrix3d Transl(double& x, double& y)
+Eigen::Matrix3d Transl(double x, double y)
 {
     Eigen::Matrix3d T = Eigen::Matrix3d::Identity();
     T(0, 2) = x;

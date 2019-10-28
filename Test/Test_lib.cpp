@@ -1,13 +1,15 @@
 
 #include <gtest/gtest.h>
+#include <cmath>
 
 
-static int add_operation(int&& a, int&& b){
-    return a + b;
+static float add_operation(float&& a){
+    return sin(a) + cos(a);
 }
 
-TEST(Addition, add){
-    int c = 5;
-    ASSERT_EQ(add_operation(2, 3),  c);
+TEST(Addition, add)
+{
+    float b = 1;
+    ASSERT_EQ(add_operation(M_PI_2), b);
 }
 

@@ -21,6 +21,5 @@ include_directories(Source)
 
 add_executable(run_tests FKinematics_test)
 
-##add_test(run_tests FKinematics_test)
 
 target_link_libraries(run_tests PUBLIC fkine_lib)

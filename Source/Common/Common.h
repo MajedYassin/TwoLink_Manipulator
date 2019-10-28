@@ -8,9 +8,9 @@
 #include <memory>
 
 
-Eigen::Matrix2d Rot(double& q);
+Eigen::Matrix2d Rot(double q);
 
-Eigen::Matrix3d Transl(double& x, double& y);
+Eigen::Matrix3d Transl(double x, double y);
 
 Eigen::Matrix3d FindPose(double& x, double& y, double& q);
 
