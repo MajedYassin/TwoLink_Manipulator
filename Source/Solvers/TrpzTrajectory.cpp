@@ -15,32 +15,37 @@ TrapezTrajectory::TrapezTrajectory(SBot& sbot, State& state) : bot(sbot), s(stat
         //TODO: - Replace Eigen for pass by reference in map[]; -Add note to Torque Dynamics to explain order of calling the traj functions: q_traj, qd_traj, qdd_traj;
 
         phase[acc_phase] = [&](std::vector<Eigen::Vector2d>& Q, Eigen::Vector2d& A, std::map<const Time, double> T, Eigen::Vector2d& q0){
-            for(int n = 0; n != A.size(); ++n) {
-                while (t != T[a]) {
-                    Q.emplace_back(q0(n) + (0.5 * A(n)) * pow((t - 0.0), 2));
-                    t += dt;
+            Eigen::Vector2d qi;
+            while (t != T[a]){
+                for (int n = 0; n != A.size(); ++n){
+                    qi(n) = q0(n) + (0.5 * A(n)) * pow((t - 0.0), 2);
                 }
+                Q.emplace_back(qi);
+                t += dt;
             }
-            t = 0.0; //resetting time counter
             return Q;
         };
         phase[const_velocity] = [&] (std::vector<Eigen::Vector2d>& Q, Eigen::Vector2d& A, std::map<const Time, double> T, Eigen::Vector2d& q0){
-            for(int n = 0; n != A.size(); ++n) {
-                t = T[a];
-                while ( t != T[d] - T[a]) {
-                    Q.emplace_back(q0(n) + A(n) * T[a] * (t - T[a] / 2));
-                    t += dt;
+            Eigen::Vector2d qi;
+            t = T[a];
+            while (t != T[d] - T[a]) {
+                for (int n = 0; n != A.size(); ++n) {
+                    qi(n) =q0(n) + A(n) * T[a] * (t - T[a] / 2);
                 }
+                Q.emplace_back(qi);
+                t += dt;
             }
             return Q;
         };
         phase[decel_phase] = [&] (std::vector<Eigen::Vector2d>& Q, Eigen::Vector2d& A, std::map<const Time, double> T, Eigen::Vector2d& qf){
-            for(int n = 0; n != A.size(); ++n) {
-                t = T[d] - T[a];
-                while (t != T[d]) {
-                    Q.emplace_back(qf(n) - A(n) * T[a] * pow((T[d] - t), 2));
-                    t += dt;
+            Eigen::Vector2d qi;
+            t = T[d] - T[a];
+            while (t != T[d]) {
+                for (int n = 0; n != A.size(); ++n) {
+                    qi(n) = qf(n) - A(n) * T[a] * pow((T[d] - t), 2);
                 }
+                Q.emplace_back(qi);
+                t += dt;
             }
             return Q;
         };

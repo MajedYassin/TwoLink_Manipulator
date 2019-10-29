@@ -18,8 +18,12 @@ struct Coord{
     double X, Y;
 
     explicit Coord(Eigen::Matrix3d& M){
-        X = M(1, 3);
-        Y = M(2, 3);
+        X = M(0, 2);
+        Y = M(1, 2);
+    }
+
+    Coord(){
+
     }
 
 };

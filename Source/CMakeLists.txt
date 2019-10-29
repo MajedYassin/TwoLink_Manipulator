@@ -50,12 +50,9 @@ set(COMMON_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Common/Common.cpp")
 set(COMMON_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Common/Common.h")
 
 
-add_library(source_library ${SOLVER_DIR} ${SOLVER_LIST} ${INT_DIR} ${BOT_LIST} ${STATE_HEADER} ${COMMON_DIR})
+add_library(source_library ${SOLVER_DIR} ${SOLVER_LIST} ${INT_DIR} ${BOT_LIST} ${STATE_HEADER} ${COMMON_DIR} ${COMMON_LIST})
 
 set(FKINE_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/FKinematics.cpp")
 set(FKINE_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/FKinematics.h")
 
-add_library(fkine_lib ${FKINE_LIST} ${FKINE_DIR} ${BOT_LIST} ${STATE_HEADER} ${COMMON_DIR} ${COMMON_LIST})
-target_link_libraries(fkine_lib PUBLIC gtest gtest_main Catch2::Catch2 eigen)
-
-target_link_libraries(source_library PUBLIC ${COMMON_LIST} gtest gtest_main Catch2::Catch2 eigen)
+target_link_libraries(source_library PUBLIC  gtest gtest_main Catch2::Catch2 eigen)

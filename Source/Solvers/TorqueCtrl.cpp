@@ -7,9 +7,9 @@
 
 Dynamics::Dynamics(State& state, SBot& sbot) : s(state), bot(sbot){
     //robot manipulator parameters from SBot
-    Iq << bot.link_inertia(0), bot.link_inertia(1);
+    Iq          << bot.link_inertia(0), bot.link_inertia(1);
     link_length << bot.link_length(0), bot.link_length(1);
-    link_cm << bot.link_cm(0), bot.link_cm(1);
+    link_cm     << bot.link_cm(0), bot.link_cm(1);
     g  = 9.81;
     dt = 0.01;
 
@@ -51,16 +51,17 @@ Dynamics::Dynamics(State& state, SBot& sbot) : s(state), bot(sbot){
 }
 
 
-//Forward recursion function for N-link manipulator
-Eigen::Matrix2d Dynamics::forward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q)
+//Forward & Backward recursion function for Two-link manipulator
+Eigen::Vector2d Dynamics::get_torque(Eigen::Vector2d& q, Eigen::Vector2d& qd, Eigen::Vector2d& qdd)
 {
-    Eigen::Matrix2d Ac, Ae;
-    Eigen::Vector2d An_1, Ac_n, Ae_n;
+    Eigen::Matrix2d Ac, Ae, force;
+    Eigen::Vector2d An_1, Ac_n, Ae_n, torque;
     Ac = (Eigen::Matrix2d(2, 2) << 0.0, 0.0, 0.0, 0.0).finished(); //linear acceleration at centre of mass
     Ae = (Eigen::Matrix2d(2, 2) << 0.0, 0.0, 0.0, 0.0).finished(); //linear acceleration at end of link
 
     //Linear accelerations : components of acceleration in x and y (2D case) with respect to individual link frames
-    for(int n = 0; n != q.size(); ++n) {
+    for(int n = 0; n != q.size(); ++n)
+    {
         double qd_sum = 0.0; //sum of angular velocity components
         double qdd_sum = 0.0;  //sum of angular acceleration components
         int m = 0;  //joint component iterator
@@ -77,15 +78,8 @@ Eigen::Matrix2d Dynamics::forward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2
         Ac.col(n) = An_1 + Ac_n;
     }
 
-    return Ac;
-}
-
-Eigen::Vector2d Dynamics::backward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, Eigen::Matrix2d& linear_acc)
-{
-    //Base Link Torque
-    Eigen::Matrix2d force, gravity;
-    gravity = get_gravity(q);
-    Eigen::Vector2d torque;
+    Eigen::Matrix2d gravity = get_gravity(q);
+    double nextlink_force;
 
     for(int n = q.size(); n >= 0; --n)
     {
@@ -96,12 +90,12 @@ Eigen::Vector2d Dynamics::backward_recursion(Eigen::Vector2d& qdd, Eigen::Vector
             --m;
         }
         if( n == q.size() ) {
-            force.col(n) = bot.mass(n) * linear_acc.col(n) - bot.mass(n) * gravity.col(n);
+            force.col(n) = bot.mass(n) * Ac.col(n) - bot.mass(n) * gravity.col(n);
             torque(n) = Iq(n) * qdd_sum + force(1, n) * link_cm(n);
         }
         else {
-            double nextlink_force = (Rot(q(n+1))).row(1) * force.col(n+1);
-            force.col(n) = bot.mass(n) * linear_acc.col(n) + (Rot(q(n+1))).row(1) * force.col(n + 1) - gravity.col(n);
+            nextlink_force = (Rot(q(n+1))).row(1) * force.col(n+1);
+            force.col(n) = bot.mass(n) * Ac.col(n) + Rot(q(n+1)) * force.col(n + 1) - gravity.col(n);
             torque(n) = torque(n + 1) - force(1, n) * link_cm(n) - (nextlink_force) * link_length(n) + Iq(n) * qdd(n);
         }
     }
@@ -109,20 +103,21 @@ Eigen::Vector2d Dynamics::backward_recursion(Eigen::Vector2d& qdd, Eigen::Vector
 }
 
 
+
 Eigen::Matrix2Xd InvDynamics::feedforward_torque(std::vector<Eigen::Vector2d>& pos_traj, std::vector<Eigen::Vector2d>& vel_traj, std::vector<Eigen::Vector2d>& acc_traj)
 {
     Integrator velocity_response(s.qd, dt);
     Integrator position_response(s.q, dt);
-    Eigen::Matrix2d linear_acc;
+    Eigen::Matrix2d linear_acc, inertia;
     Eigen::Matrix2Xd torque;
     Eigen::Vector2d pos_response, vel_response, acc_response, torque_i;
     Eigen::Vector2d initial_position, q, qd, qdd, pos_error, vel_error, acc_error;
 
     q = s.q; //Initial (State) position of the links before movement
-    pos_response   = Eigen::Vector2d::Zero();
-    vel_response  = Eigen::Vector2d::Zero();
+    pos_response = Eigen::Vector2d::Zero();
+    vel_response = Eigen::Vector2d::Zero();
     acc_response = Eigen::Vector2d::Zero();
-    Eigen::Vector2d inertia, coriolis, gravity;
+    Eigen::Vector2d coriolis, gravity;
 
     for(int i = 0; i != pos_traj.size(); ++i)
     {
@@ -132,13 +127,9 @@ Eigen::Matrix2Xd InvDynamics::feedforward_torque(std::vector<Eigen::Vector2d>& p
         qd  = vel_traj[i];
         q   = pos_traj[i];
 
-        //coriolis = get_coriolis_matrix(q, initial_position, qd, inertia);
-        //inertia  = get_inertia_matrix(q);
-        //gravity  = get_gravity(q);
-
         gravity = get_gravity_vector(q);
-        inertia = get_inertia_vector(qdd, q, gravity);
-        coriolis = get_coriolis_vector(qdd, qd, q, gravity, inertia);
+        inertia = get_inertia_matrix(q, gravity);
+        coriolis = get_coriolis_vector(q, qd, gravity);
 
 
         pos_error = q   - pos_response;
@@ -160,7 +151,7 @@ Eigen::Matrix2Xd InvDynamics::feedforward_torque(std::vector<Eigen::Vector2d>& p
 }
 
 
-Eigen::Vector2d InvDynamics::state_response(Eigen::Vector2d& torque, Eigen::Vector2d& inertia,Eigen::Vector2d& coriolis, Eigen::Vector2d& gravity)
+Eigen::Vector2d InvDynamics::state_response(Eigen::Vector2d& torque, Eigen::Matrix2d& inertia, Eigen::Vector2d& coriolis, Eigen::Vector2d& gravity)
 {
     Eigen::Vector2d acc_computed;
 
@@ -174,34 +165,34 @@ Eigen::Vector2d InvDynamics::get_gravity_vector(Eigen::Vector2d& q)
 {
     Eigen::Vector2d at_rest = Eigen::Vector2d::Zero();
 
-    Eigen::Matrix2d linear_acc = forward_recursion(at_rest, at_rest, q);
-
-    Eigen::Vector2d gravity_vec = backward_recursion(at_rest, at_rest, q, linear_acc);
+    Eigen::Vector2d gravity_vec = get_torque(q, at_rest, at_rest);
 
     return gravity_vec;
 }
 
 //Inertia component of the torques: Inertia Matrix M(q) * qdd(angular acceleration vector);
-Eigen::Vector2d InvDynamics::get_inertia_vector(Eigen::Vector2d& q, Eigen::Vector2d& qdd, Eigen::Vector2d gravity)
+Eigen::Matrix2d InvDynamics::get_inertia_matrix(Eigen::Vector2d& q, Eigen::Vector2d& gravity)
 {
+    Eigen::Matrix2d inertia_matrix;
     Eigen::Vector2d at_rest  = Eigen::Vector2d::Zero();
-    Eigen::Vector2d constant = Eigen::Vector2d::Constant(1);
+    Eigen::Vector2d const_acc = (Eigen::Vector2d(2) << 1.0, 0.0).finished();
 
-    Eigen::Matrix2d linear_acc = forward_recursion(constant, at_rest, q);
-
-    Eigen::Vector2d inertia_vec = backward_recursion(constant, at_rest, q, linear_acc) - gravity;
-
-    return inertia_vec;
+    for(int i = 0; i != q.size(); ++i)
+    {
+        inertia_matrix.col(i) = get_torque(q, at_rest, const_acc) - gravity;
+        const_acc(i) = 0.0;
+        const_acc(i+1) = 1.0;
+    }
+    return inertia_matrix;
 }
 
 //Coriolis (coriolis + centrifugal) component of the torques: Coriolis Matrix C(q, qd) * qd;
-Eigen::Vector2d InvDynamics::get_coriolis_vector(Eigen::Vector2d& q, Eigen::Vector2d& qd, Eigen::Vector2d& qdd, Eigen::Vector2d& gravity, Eigen::Vector2d& inertia)
+Eigen::Vector2d InvDynamics::get_coriolis_vector(Eigen::Vector2d& q, Eigen::Vector2d& qd, Eigen::Vector2d& gravity)
 {
+    Eigen::Vector2d coriolis_vec;
     Eigen::Vector2d at_rest = Eigen::Vector2d::Zero();
 
-    Eigen::Matrix2d linear_acc = forward_recursion(at_rest, qd, q);
-
-    Eigen::Vector2d coriolis_vec = backward_recursion(at_rest, qd, q, linear_acc) - gravity;
+    coriolis_vec = get_torque(q, qd, at_rest) - gravity;
 
     return coriolis_vec;
 }
@@ -210,7 +201,7 @@ Eigen::Vector2d InvDynamics::get_coriolis_vector(Eigen::Vector2d& q, Eigen::Vect
 Eigen::Matrix2d Dynamics::get_gravity(Eigen::Vector2d& q)
 {
     Eigen::Matrix2d grav;
-    grav = (Eigen::Vector2d(2, 1) << 0.0, 0.0).finished();
+    grav = (Eigen::Matrix2d(2, 2) << 0.0, 0.0, 0.0, 0.0).finished();
 
     for(int i= 0; i != q.size(); ++i){
         int n = 0;
@@ -225,7 +216,7 @@ Eigen::Matrix2d Dynamics::get_gravity(Eigen::Vector2d& q)
 }
 
 
-//Unused Functions to independently calculate the Inertia, Coriolis and the Jacobian matrices and the gravity Vector;
+//Unused Functions to independently calculate the Coriolis and Jacobian matrix and the gravity Vector;
 
 /*
 Eigen::Vector2d InvDynamics::get_gravity(Eigen::Vector2d& q)
@@ -250,21 +241,6 @@ Eigen::Vector2d InvDynamics::get_gravity(Eigen::Vector2d& q)
     return grav;
 }
 
-Eigen::Matrix2d InvDynamics::inertia_tensor(Eigen::Vector2d& I){
-    Eigen::Matrix2d I_t;
-
-    //Simplified Version - Will need to provide a more generalised function
-    int n = I.size();
-    while(n != I.size()){
-        for(int m = 0; m != I_t.cols(); ++m){
-            I_t(n, m) = I.sum();
-            I(n) = 0;
-        }
-        ++n;
-    }
-    return I_t;
-}
-
 
 Eigen::Matrix2d InvDynamics::get_jacobian(Eigen::Vector2d& q, int link)
 {
@@ -276,21 +252,6 @@ Eigen::Matrix2d InvDynamics::get_jacobian(Eigen::Vector2d& q, int link)
     J = Component[Y](J, q, link);
 
     return (J);
-}
-
-
-Eigen::Matrix2d InvDynamics::get_inertia_matrix(Eigen::Vector2d& q)
-{
-    //Obtaining the Inertia Matrix using the Jacobian
-    Eigen::Matrix2d M;
-    M = (Eigen::Matrix2d(2, 2) << 0.0, 0.0, 0.0, 0.0).finished();
-
-    for(int n = 0; n != q.size(); ++n){
-        M += bot.mass(n) * get_jacobian(q, n) * get_jacobian(q, n).transpose();
-    }
-
-    M += inertia_tensor(Iq);
-    return M;
 }
 
 
