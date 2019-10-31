@@ -10,7 +10,6 @@
 #include <map>
 #include <algorithm>
 #include <functional>
-#include <memory>
 #include <vector>
 
 
@@ -18,6 +17,7 @@
 struct TrapezTrajectory{
 
 public:
+    enum Time {a = 0, d};
     std::vector<Eigen::Vector2d> q_traj, qd_traj, qdd_traj;
 
     explicit TrapezTrajectory(SBot& sbot, State& s);
@@ -55,10 +55,11 @@ private:
     double dt;
     int x; //iterator
     enum Phase {acc_phase, const_velocity, decel_phase};
-    enum Time {a, d};
-    std::map<const Time, double> T;
-    std::map<const Phase, std::function< std::vector<Eigen::Vector2d>
-            (std::vector<Eigen::Vector2d>& , Eigen::Vector2d& , std::map<const Time, double>, Eigen::Vector2d& )>> phase;
+    std::map<Phase, std::function< std::vector<Eigen::Vector2d>
+            (std::vector<Eigen::Vector2d>& , Eigen::Vector2d&, Eigen::Vector2d& , std::map<Time, double>&)>> phase;
+
+public:
+    std::map<Time, double> T;
     Eigen::Vector2d h;
     Eigen::Vector2d A;
 };

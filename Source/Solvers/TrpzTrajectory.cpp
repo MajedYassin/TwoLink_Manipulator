@@ -1,55 +1,57 @@
 //
 #include "TrpzTrajectory.h"
 
-TrapezTrajectory::TrapezTrajectory(SBot& sbot, State& state) : bot(sbot), s(state){
-        t = 0.0;
-        h << Eigen::Vector2d::Zero();
-        hmax = 0.0; //Longest joint rotation requested
-        A = Eigen::Vector2d::Zero(); //Joint Actuator acceleration
-        Vmax = bot.Vmax;
-        dt = 0.01; //timestep
-        T[a] = 0.0; // Acceleration time
-        T[d] = 0.0; // Duration of Joint rotation
-        x = 0; //iterator
+TrapezTrajectory::TrapezTrajectory(SBot& sbot, State& state) : bot(sbot), s(state) {
 
-        //TODO: - Replace Eigen for pass by reference in map[]; -Add note to Torque Dynamics to explain order of calling the traj functions: q_traj, qd_traj, qdd_traj;
+    t = 0.0;
+    h << Eigen::Vector2d::Zero();
+    hmax = 0.0; //Longest joint rotation requested
+    A = Eigen::Vector2d::Zero(); //Joint Actuator acceleration
+    Vmax = bot.Vmax;
+    dt = 0.01; //timestep
+    T[a] = 0.0; // Acceleration time
+    T[d] = 0.0; // Duration of Joint rotation
+    x = 0; //iterator
 
-        phase[acc_phase] = [&](std::vector<Eigen::Vector2d>& Q, Eigen::Vector2d& A, std::map<const Time, double> T, Eigen::Vector2d& q0){
-            Eigen::Vector2d qi;
-            while (t != T[a]){
-                for (int n = 0; n != A.size(); ++n){
-                    qi(n) = q0(n) + (0.5 * A(n)) * pow((t - 0.0), 2);
-                }
-                Q.emplace_back(qi);
-                t += dt;
+    //TODO: -Add note to Torque Dynamics to explain order of calling the traj functions: q_traj, qd_traj, qdd_traj;
+
+    phase[acc_phase] = [&](std::vector<Eigen::Vector2d>& Q, Eigen::Vector2d& q0, Eigen::Vector2d& Ac, std::map<TrapezTrajectory::Time, double>& Ti) -> std::vector<Eigen::Vector2d>{
+        Eigen::Vector2d qi;
+        t = 0.00;
+        while (t <= Ti[a]){
+            for (int n = 0; n != Ac.size(); ++n){
+                qi(n) = q0(n) + (0.5 * Ac(n)) * pow((t - 0.0), 2);
             }
-            return Q;
-        };
-        phase[const_velocity] = [&] (std::vector<Eigen::Vector2d>& Q, Eigen::Vector2d& A, std::map<const Time, double> T, Eigen::Vector2d& q0){
-            Eigen::Vector2d qi;
-            t = T[a];
-            while (t != T[d] - T[a]) {
-                for (int n = 0; n != A.size(); ++n) {
-                    qi(n) =q0(n) + A(n) * T[a] * (t - T[a] / 2);
-                }
-                Q.emplace_back(qi);
-                t += dt;
+            Q.emplace_back(qi);
+            t += dt;
+        }
+        return Q;
+    };
+    phase[const_velocity] =[&] (std::vector<Eigen::Vector2d>& Q, Eigen::Vector2d& q0, Eigen::Vector2d& Ac, std::map<TrapezTrajectory::Time, double>&Ti){
+        Eigen::Vector2d qi;
+        t = Ti[a];
+        while (t <= (Ti[d] - Ti[a])) {
+            for (int n = 0; n != Ac.size(); ++n) {
+                qi(n) = q0(n) + (Ac(n) * Ti[a] * (t - Ti[a] / 2));
             }
-            return Q;
-        };
-        phase[decel_phase] = [&] (std::vector<Eigen::Vector2d>& Q, Eigen::Vector2d& A, std::map<const Time, double> T, Eigen::Vector2d& qf){
-            Eigen::Vector2d qi;
-            t = T[d] - T[a];
-            while (t != T[d]) {
-                for (int n = 0; n != A.size(); ++n) {
-                    qi(n) = qf(n) - A(n) * T[a] * pow((T[d] - t), 2);
-                }
-                Q.emplace_back(qi);
-                t += dt;
+            Q.emplace_back(qi);
+            t += dt;
+        }
+        return Q;
+    };
+    phase[decel_phase] = [&] (std::vector<Eigen::Vector2d>& Q, Eigen::Vector2d& qf, Eigen::Vector2d& Ac, std::map<TrapezTrajectory::Time, double>& Ti){
+        Eigen::Vector2d qi;
+        t = (Ti[d] - Ti[a]);
+        while (t <= Ti[d]){
+            for (int n = 0; n != Ac.size(); ++n) {
+                qi(n) = qf(n) - (0.5 * Ac(n)  * pow((Ti[d] - t), 2));
             }
-            return Q;
-        };
-};
+            Q.emplace_back(qi);
+            t += dt;
+        }
+        return Q;
+    };
+}
 
 
 std::vector<Eigen::Vector2d> TrapezTrajectory::pos_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf){
@@ -80,7 +82,7 @@ void TrapezTrajectory::prioritise()
 
 void TrapezTrajectory::acc_time()
 {
-    if (fabs(hmax) >= (pow(bot.Vmax, 2) / bot.Amax)) {
+    if (hmax >= (pow(Vmax, 2) / bot.Amax)) {
         T[a] = Vmax / bot.Amax;
     }
     else T[a] = sqrt(hmax/bot.Amax);
@@ -89,7 +91,7 @@ void TrapezTrajectory::acc_time()
 
 void TrapezTrajectory::duration()
 {
-    if (fabs(hmax) >= (pow(bot.Vmax, 2) / bot.Amax)){
+    if (hmax >= (pow(Vmax, 2) / bot.Amax)){
         T[d] = hmax * bot.Amax + pow(Vmax, 2)/ bot.Amax * Vmax;
     }
     else T[d] = 2 * T[a];
@@ -99,7 +101,7 @@ void TrapezTrajectory::duration()
 void TrapezTrajectory::joint_acceleration()
 {
     for(int n = 0; n != A.size(); ++n){
-        if((h(n) = hmax)) A(n) = (h(n)/fabs(h(n))) * bot.Amax;//h(n)/fabs(h(n)) verifies if negative rotation (clockwise)
+        if(fabs(h(n)) == hmax) A(n) = (h(n)/fabs(h(n))) * bot.Amax;//h(n)/fabs(h(n)) verifies if negative rotation (clockwise)
         else A(n) = h(n) / (T[a] * (T[d] - T[a]));
     }
 }
@@ -108,10 +110,8 @@ std::vector<Eigen::Vector2d> TrapezTrajectory::tr_traj(Eigen::Vector2d& q0, Eige
 
     //Change in joint orientation q0 = initial joint angles, qf = final joint angles;
     h = qf - q0;
-    std::vector<Eigen::Vector2d> Qa;
 
     prioritise();
-
     //Matrix containing the joint angles at each time step to return to q_traj is TrapezTrajectory::Qa
     //Amax & Vmax are obtained directly from the SBot and are the actuators maximum acceleration and velocity
 
@@ -121,14 +121,20 @@ std::vector<Eigen::Vector2d> TrapezTrajectory::tr_traj(Eigen::Vector2d& q0, Eige
 
     //Calculating joint accelerations
     joint_acceleration();
+    double h1 = h(0);
 
-    Qa = phase[acc_phase](Qa, A, T, q0);
+    std::vector<Eigen::Vector2d> Qa;
 
-    if (hmax >= (pow(bot.Vmax, 2) / bot.Amax)) {
-        Qa = phase[const_velocity](Qa, A, T, q0);
+    Qa = phase[acc_phase](Qa, q0, A, T);
+
+    //phase_func accelphase = phase[acc_phase];
+    //auto Qp = accelphase(Qa, q0, A, T);
+
+    if (hmax > (pow(bot.Vmax, 2) / bot.Amax)) {
+        Qa = phase[const_velocity](Qa, q0, A, T);
     }
 
-    Qa = phase[decel_phase] (Qa, A, T, qf);
+    Qa = phase[decel_phase](Qa, qf, A, T);
 
     return Qa;
 }
