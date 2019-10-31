@@ -109,7 +109,7 @@ TEST(SolverTest, RunTrajectoryPlanner)
     //velocities = traj.vel_traj();
     //accelerations = traj.acc_traj();
     std::vector<Eigen::Vector2d> answer = set_position();
-    std::cout << traj.A(0) << " " << traj.h(0) << " Ta: " << traj.accel_time << std::endl;
+    std::cout << traj.A(0) << " " << traj.h(0) << std::endl;
     check_trajectories(positions);
     verify(positions, answer);
     //std::cout << answer[60](0) << " " << positions[60](0)  << " size of computed traj : " << positions.size() << std::endl;
