@@ -35,12 +35,13 @@ Eigen::Matrix3d FindPose(double& x, double& y, double& q)
 std::vector<Eigen::Vector2d> derivative_array(std::vector<Eigen::Vector2d>& array, double& timestep)
 {
     auto length = array.size();
-    auto links  = array[0].rows();
     std::vector<Eigen::Vector2d> diff_array;
+    int j = 0;
 
-    for (int i = 0; i != length; ++i)
+    for (int i = 1; i != length; ++i)
     {
-        diff_array.emplace_back((array[i+1] - array[i]) / timestep);
+        j = i - 1;
+        diff_array.emplace_back((array[i] - array[j]) / timestep);
     }
     return diff_array;
 }

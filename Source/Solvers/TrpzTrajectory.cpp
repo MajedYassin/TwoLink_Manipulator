@@ -29,7 +29,7 @@ TrapezTrajectory::TrapezTrajectory(SBot& sbot, State& state) : bot(sbot), s(stat
     };
     phase[const_velocity] =[&] (std::vector<Eigen::Vector2d>& Q, Eigen::Vector2d& q0, Eigen::Vector2d& Ac, std::map<TrapezTrajectory::Time, double>&Ti){
         Eigen::Vector2d qi;
-        t = Ti[a];
+
         while (t <= (Ti[d] - Ti[a])) {
             for (int n = 0; n != Ac.size(); ++n) {
                 qi(n) = q0(n) + (Ac(n) * Ti[a] * (t - Ti[a] / 2));
@@ -41,7 +41,7 @@ TrapezTrajectory::TrapezTrajectory(SBot& sbot, State& state) : bot(sbot), s(stat
     };
     phase[decel_phase] = [&] (std::vector<Eigen::Vector2d>& Q, Eigen::Vector2d& qf, Eigen::Vector2d& Ac, std::map<TrapezTrajectory::Time, double>& Ti){
         Eigen::Vector2d qi;
-        t = (Ti[d] - Ti[a]);
+
         while (t <= Ti[d]){
             for (int n = 0; n != Ac.size(); ++n) {
                 qi(n) = qf(n) - (0.5 * Ac(n)  * pow((Ti[d] - t), 2));
