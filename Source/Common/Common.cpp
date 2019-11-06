@@ -49,13 +49,12 @@ std::vector<Eigen::Vector2d> derivative_array(std::vector<Eigen::Vector2d>& arra
 
 Integrator::Integrator(Eigen::Vector2d& vec_0, double& interval)
 {
-    y0 = Eigen::Vector2d::Zero();
     y = vec_0;
     dt = interval;
 }
 
-Eigen::Vector2d Integrator::integral(Eigen::Vector2d& vec_i){
-    y = (vec_i * dt) + y0;
-    y0 = y;
+Eigen::Vector2d Integrator::integral(Eigen::Vector2d& vec_i)
+{
+    y  = (vec_i * dt) + y;
     return y;
 }

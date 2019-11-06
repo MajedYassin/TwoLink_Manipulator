@@ -25,12 +25,6 @@ struct Dynamics
     Eigen::Vector2d get_torque(Eigen::Vector2d& q, Eigen::Vector2d& qd, Eigen::Vector2d& qdd);
 
 
-    Eigen::Matrix2d forward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q);
-
-
-    Eigen::Vector2d backward_recursion(Eigen::Vector2d& qdd, Eigen::Vector2d& qd, Eigen::Vector2d& q, Eigen::Matrix2d& linear_acc);
-
-
     virtual Eigen::Matrix2d get_gravity(Eigen::Vector2d& q);
 
 private:
@@ -42,7 +36,12 @@ private:
 
 struct InvDynamics : public Dynamics{
 
-    InvDynamics() = default;
+    std::vector<Eigen::Vector2d> acceleration_response;
+
+    explicit InvDynamics(State& state, SBot& sbot) : Dynamics(state, sbot) {
+        Kp = 10.0;
+        Kv = 0.50;
+    }
 
 
     Eigen::Matrix2d get_inertia_matrix(Eigen::Vector2d& q, Eigen::Vector2d& gravity);
@@ -54,11 +53,11 @@ struct InvDynamics : public Dynamics{
     Eigen::Vector2d get_gravity_vector(Eigen::Vector2d& q);
 
 
-    Eigen::Vector2d state_response(Eigen::Vector2d& torque, Eigen::Matrix2d& inertia, Eigen::Vector2d& coriolis,
+    static Eigen::Vector2d state_response(Eigen::Vector2d& torque, Eigen::Matrix2d& inertia, Eigen::Vector2d& coriolis,
                                     Eigen::Vector2d& gravity);
 
 
-    Eigen::Matrix2Xd feedforward_torque(std::vector<Eigen::Vector2d>& pos_traj, std::vector<Eigen::Vector2d>& vel_traj, std::vector<Eigen::Vector2d>& acc_traj);
+    std::vector<Eigen::Vector2d> feedforward_torque(std::vector<Eigen::Vector2d>& pos_traj, std::vector<Eigen::Vector2d>& vel_traj, std::vector<Eigen::Vector2d>& acc_traj);
 
 
     //Eigen::Matrix2d get_coriolis_matrix(Eigen::Vector2d& q, Eigen::Vector2d& q0, Eigen::Vector2d& qd, Eigen::Matrix2d& M);
@@ -66,8 +65,7 @@ struct InvDynamics : public Dynamics{
     //Eigen::Vector2d get_gravity(Eigen::Vector2d& q) override;
 
 private:
-    double Kp = 20;
-    double Kv = 5;
+    double Kp, Kv;
     //double Kd = 1;
 
     //Jacobian variables

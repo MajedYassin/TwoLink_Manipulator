@@ -34,7 +34,7 @@ public:
     void duration();
 
 
-    std::vector<Eigen::Vector2d> tr_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
+    void tr_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);
 
 
     std::vector<Eigen::Vector2d> pos_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf);

@@ -16,37 +16,54 @@ TrapezTrajectory::TrapezTrajectory(SBot& sbot, State& state) : bot(sbot), s(stat
     //TODO: -Add note to Torque Dynamics to explain order of calling the traj functions: q_traj, qd_traj, qdd_traj;
 
     phase[acc_phase] = [&](std::vector<Eigen::Vector2d>& Q, Eigen::Vector2d& q0, Eigen::Vector2d& Ac, std::map<TrapezTrajectory::Time, double>& Ti) -> std::vector<Eigen::Vector2d>{
-        Eigen::Vector2d qi;
-        t = 0.00;
+        Eigen::Vector2d qi, qid, qidd;
+        std::vector<Eigen::Vector2d> Qd, Qdd;
+
+        t = 0.0;
         while (t <= Ti[a]){
             for (int n = 0; n != Ac.size(); ++n){
-                qi(n) = q0(n) + (0.5 * Ac(n)) * pow((t - 0.0), 2);
+                qi(n)  = q0(n) + (0.5 * Ac(n)) * pow((t - 0.0), 2);
+                qid(n) = Ac(n)* t;
+                qidd(n) = Ac(n);
             }
             Q.emplace_back(qi);
+            q_traj.emplace_back(qi);
+            qd_traj.emplace_back(qid);
+            qdd_traj.emplace_back(qidd);
             t += dt;
         }
         return Q;
     };
     phase[const_velocity] =[&] (std::vector<Eigen::Vector2d>& Q, Eigen::Vector2d& q0, Eigen::Vector2d& Ac, std::map<TrapezTrajectory::Time, double>&Ti){
-        Eigen::Vector2d qi;
+        Eigen::Vector2d qi, qid, qidd;
 
         while (t <= (Ti[d] - Ti[a])) {
             for (int n = 0; n != Ac.size(); ++n) {
-                qi(n) = q0(n) + (Ac(n) * Ti[a] * (t - Ti[a] / 2));
+                qi(n)  = q0(n) + (Ac(n) * Ti[a] * (t - (Ti[a] / 2)));
+                qid(n) = Ac(n) * Ti[a];
+                qidd(n)= 0.0;
             }
             Q.emplace_back(qi);
+            q_traj.emplace_back(qi);
+            qd_traj.emplace_back(qid);
+            qdd_traj.emplace_back(qidd);
             t += dt;
         }
         return Q;
     };
     phase[decel_phase] = [&] (std::vector<Eigen::Vector2d>& Q, Eigen::Vector2d& qf, Eigen::Vector2d& Ac, std::map<TrapezTrajectory::Time, double>& Ti){
-        Eigen::Vector2d qi;
+        Eigen::Vector2d qi, qid, qidd;
 
         while (t <= Ti[d]){
             for (int n = 0; n != Ac.size(); ++n) {
-                qi(n) = qf(n) - (0.5 * Ac(n)  * pow((Ti[d] - t), 2));
+                qi(n)  = qf(n) - (0.5 * Ac(n)  * pow((Ti[d] - t), 2));
+                qid(n) = Ac(n) * (Ti[d] - t);
+                qidd(n)= - Ac(n);
             }
             Q.emplace_back(qi);
+            q_traj.emplace_back(qi);
+            qd_traj.emplace_back(qid);
+            qdd_traj.emplace_back(qidd);
             t += dt;
         }
         return Q;
@@ -55,19 +72,18 @@ TrapezTrajectory::TrapezTrajectory(SBot& sbot, State& state) : bot(sbot), s(stat
 
 
 std::vector<Eigen::Vector2d> TrapezTrajectory::pos_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf){
-    q_traj = tr_traj(q0, qf);
+    tr_traj(q0, qf);
     return q_traj;
 }
 
 
 std::vector<Eigen::Vector2d> TrapezTrajectory::vel_traj(){
-    qd_traj = derivative_array(q_traj, dt);
     return qd_traj;
 }
 
 //Need fix to allow user to request only acc_traj without calling velocity_traj
 std::vector<Eigen::Vector2d> TrapezTrajectory::acc_traj(){
-    return derivative_array(qd_traj, dt);
+    return qdd_traj;
 }
 
 
@@ -106,7 +122,7 @@ void TrapezTrajectory::joint_acceleration()
     }
 }
 
-std::vector<Eigen::Vector2d> TrapezTrajectory::tr_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf){
+void TrapezTrajectory::tr_traj(Eigen::Vector2d& q0, Eigen::Vector2d& qf){
 
     //Change in joint orientation q0 = initial joint angles, qf = final joint angles;
     h = qf - q0;
@@ -136,5 +152,4 @@ std::vector<Eigen::Vector2d> TrapezTrajectory::tr_traj(Eigen::Vector2d& q0, Eige
 
     Qa = phase[decel_phase](Qa, qf, A, T);
 
-    return Qa;
 }
