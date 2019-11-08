@@ -33,13 +33,17 @@ std::vector<Eigen::Vector2d> derivative_array(std::vector<Eigen::Vector2d>& arra
 
 struct Integrator{
 
-    Eigen::Vector2d y, y0;
+    Eigen::Vector2d y, y0, v0;
     double dt;
 
-    Integrator(Eigen::Vector2d& vec_0, double& interval);
+    Integrator(Eigen::Vector2d& vec_0, Eigen::Vector2d& var_0, double& interval);
+    //var_0 initial state of variable that you are trying to integrate;
+    //initial state of variable that you are integrating for, i.e the variable you are trying to find;
 
 
-    Eigen::Vector2d integral(Eigen::Vector2d& vec_i);
+    Eigen::Vector2d integration(Eigen::Vector2d& vec_i);
+
+    Eigen::Vector2d trapez_integration(Eigen::Vector2d& vec_i);
 
 };
 

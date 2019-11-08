@@ -55,6 +55,7 @@ Dynamics::Dynamics(State& state, SBot& sbot) : s(state), bot(sbot){
 Eigen::Vector2d Dynamics::get_torque(Eigen::Vector2d& q, Eigen::Vector2d& qd, Eigen::Vector2d& qdd)
 {
     Eigen::Matrix2d Ac, Ae, force;
+    Eigen::Matrix2d gravity = get_gravity(q);
     Eigen::Vector2d An_1, Ac_n, Ae_n, torque;
     Ac = (Eigen::Matrix2d(2, 2) << 0.0, 0.0, 0.0, 0.0).finished(); //linear acceleration at centre of mass
     Ae = (Eigen::Matrix2d(2, 2) << 0.0, 0.0, 0.0, 0.0).finished(); //linear acceleration at end of link
@@ -72,33 +73,32 @@ Eigen::Vector2d Dynamics::get_torque(Eigen::Vector2d& q, Eigen::Vector2d& qd, Ei
             qdd_sum += qdd(m);
             ++m;
         }
-        if (m > 1) An_1 = (Rot(q(m-1))).transpose() * Ae.col(m - 2);
+        if (m > 1) An_1 = (Rot(q(n))) * Ae.col(n - 1);
         else An_1 = (Eigen::Vector2d(2) << 0.0, 0.0).finished();
         Ac_n << -1 * pow(qd_sum, 2) * link_cm(n), qdd_sum * link_cm(n);
-        Ae_n << -1 * pow(qd_sum, 2) * link_length(n), qdd_sum * link_length(n);
-        Ae.col(n) = An_1 + Ae_n;
-        Ac.col(n) = An_1 + Ac_n;
+        Ae_n << -1 * pow(qd_sum, 2) * link_length(n),  qdd_sum * link_length(n);
+        Ae.col(n) = An_1 + Ae_n + gravity.col(n);
+        Ac.col(n) = An_1 + Ac_n + gravity.col(n);
     }
 
-    Eigen::Matrix2d gravity = get_gravity(q);
-    double nextlink_force;
+    Eigen::Vector2d nextlink_force;
 
     for(int n = (links -1); n >= 0; --n)
     {
-        double qdd_sum = 0.0;
+        qdd_sum = 0.0;
         signed int m = n;
         while(m >= 0){
             qdd_sum += qdd(m);
             --m;
         }
         if( n == (links - 1)) {
-            force.col(n) = bot.mass(n) * Ac.col(n) - bot.mass(n) * gravity.col(n);
-            torque(n) = Iq(n) * qdd_sum - force(1, n) * link_cm(n);
+            force.col(n) = bot.mass(n) * Ac.col(n);
+            torque(n) = Iq(n) * qdd_sum + (force(1, n) * link_cm(n));
         }
         else {
-            nextlink_force = (Rot(q(n+1))).row(1) * force.col(n+1);
-            force.col(n) = bot.mass(n) * Ac.col(n) + Rot(q(n+1)) * force.col(n + 1) - (bot.mass(n) * gravity.col(n));
-            torque(n) = torque(n + 1) - force(1, n) * link_cm(n) - (nextlink_force) * link_cm(n) + Iq(n) * qdd(n);
+            nextlink_force = Rot(q(n+1)).transpose() * force.col(n+1);
+            force.col(n) = bot.mass(n) * Ac.col(n) + nextlink_force;
+            torque(n) = torque(n + 1) + (force(1, n) * link_cm(n)) + (nextlink_force(1) * link_cm(n)) + Iq(n) * qdd_sum;
         }
     }
     return torque;
@@ -108,8 +108,8 @@ Eigen::Vector2d Dynamics::get_torque(Eigen::Vector2d& q, Eigen::Vector2d& qd, Ei
 
 std::vector<Eigen::Vector2d> InvDynamics::feedforward_torque(std::vector<Eigen::Vector2d>& pos_traj, std::vector<Eigen::Vector2d>& vel_traj, std::vector<Eigen::Vector2d>& acc_traj)
 {
-    Integrator velocity_response(s.qdd, dt);
-    Integrator position_response(s.qd, dt);
+    Integrator velocity_response(s.qd, s.qdd, dt);
+    Integrator position_response(s.q, s.qd, dt);
     Eigen::Matrix2d linear_acc, inertia;
     std::vector<Eigen::Vector2d> torque;
     Eigen::Vector2d pos_response, vel_response, acc_response, torque_i;
@@ -131,6 +131,9 @@ std::vector<Eigen::Vector2d> InvDynamics::feedforward_torque(std::vector<Eigen::
         gravity  = get_gravity_vector(q);
         inertia  = get_inertia_matrix(q, gravity);
         coriolis = get_coriolis_vector(q, qd, gravity);
+        inertia_array.emplace_back(inertia);
+        coriolis_array.emplace_back(coriolis);
+        gravity_array.emplace_back(gravity);
 
         pos_error = q - pos_response;
         vel_error = qd - vel_response;
@@ -143,8 +146,9 @@ std::vector<Eigen::Vector2d> InvDynamics::feedforward_torque(std::vector<Eigen::
         acc_response = InvDynamics::state_response(torque_i, inertia, coriolis, gravity);
         acceleration_response.emplace_back(acc_response);
 
-        vel_response = velocity_response.integral(acc_response);
-        pos_response = position_response.integral(vel_response);
+        vel_response = velocity_response.integration(acc_response);
+        pos_response = position_response.trapez_integration(vel_response);
+        position_response_array.emplace_back(pos_response);
 
     }
     return torque;
@@ -203,18 +207,21 @@ Eigen::Vector2d InvDynamics::get_coriolis_vector(Eigen::Vector2d& q, Eigen::Vect
 Eigen::Matrix2d Dynamics::get_gravity(Eigen::Vector2d& q)
 {
     Eigen::Matrix2d grav;
-    grav = (Eigen::Matrix2d(2, 2) << 0.0, 0.0, 0.0, 0.0).finished();
+    grav = Eigen::Matrix2d::Zero();
 
-    for(int i= 0; i != q.size(); ++i){
+    Eigen::Vector2d g_vec;
+    g_vec << 0.0, g;
+
+    for(int i= 0; i != 1; ++i){
         int n = 0;
         double dq = 0.0;
         while(n <= i){
             dq += q(n);
             ++n;
         }
-        grav.col(i) << sin(dq), - cos(dq);
+        grav.col(i) = Rot(dq) *  g_vec;
     }
-    return g * grav;
+    return grav;
 }
 
 

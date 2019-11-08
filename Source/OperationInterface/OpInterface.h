@@ -37,7 +37,7 @@ struct OpInt
     {
         std::vector<Eigen::Vector2d> position_traj, velocity_traj, acceleration_traj;
 
-        position_traj     = trajectory.tr_traj(s.q, set_position);
+        position_traj     = trajectory.pos_traj(s.q, set_position);
         velocity_traj     = trajectory.vel_traj();
         acceleration_traj = trajectory.acc_traj();
 
@@ -48,7 +48,7 @@ struct OpInt
 
     // std::vector<Eigen::Vector2d> get_trajectory(Eigen::Vector2d& endq);
     std::vector<Eigen::Vector2d> get_position_trajectory(Eigen::Vector2d& endq){
-        return trajectory.tr_traj(s.q, endq);
+        return trajectory.pos_traj(s.q, endq);
     }
 
 };

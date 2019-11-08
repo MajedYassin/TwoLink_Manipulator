@@ -36,11 +36,12 @@ private:
 
 struct InvDynamics : public Dynamics{
 
-    std::vector<Eigen::Vector2d> acceleration_response;
+    std::vector<Eigen::Vector2d> acceleration_response, position_response_array,gravity_array, coriolis_array;
+    std::vector<Eigen::Matrix2d> inertia_array;
 
     explicit InvDynamics(State& state, SBot& sbot) : Dynamics(state, sbot) {
-        Kp = 10.0;
-        Kv = 0.50;
+        Kp = 0.0;
+        Kv = 0.0;
     }
 
 

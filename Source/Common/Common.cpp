@@ -47,14 +47,25 @@ std::vector<Eigen::Vector2d> derivative_array(std::vector<Eigen::Vector2d>& arra
 }
 
 
-Integrator::Integrator(Eigen::Vector2d& vec_0, double& interval)
+Integrator::Integrator(Eigen::Vector2d& vec_0, Eigen::Vector2d& var_0, double& interval)
 {
-    y = vec_0;
+    y0 = vec_0;
+    y  = vec_0;
+    v0 = var_0;
     dt = interval;
 }
 
-Eigen::Vector2d Integrator::integral(Eigen::Vector2d& vec_i)
+Eigen::Vector2d Integrator::integration(Eigen::Vector2d& vec_i)
 {
-    y  = (vec_i * dt) + y;
+    y  = (vec_i * dt) + y0;//y and y0 are the initial and final velocities;
+    y0 = y;
+    return y;
+}
+
+Eigen::Vector2d Integrator::trapez_integration(Eigen::Vector2d& vec_i)
+{
+    y  = ((vec_i + v0) * (dt/2)) + y0; // y and y0 are the state before and after vec_i; v0 is the state of vec_i in the previous step;
+    v0 = vec_i;
+    y0 = y;
     return y;
 }

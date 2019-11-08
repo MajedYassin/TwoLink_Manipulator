@@ -12,7 +12,7 @@ struct SBot
     //Link Lengths
     Eigen::Vector2d link_length, link_cm, mass, link_inertia, joint_displaced;
     //Inertia Terms
-    double Inertia1 = (1/12)*0.5*(pow(0.25, 3));
+    double Inertia1 = 0.0651;
     double Inertia2 = Inertia1;
     //Base Pose at Origin(0, 0)
     Eigen::Matrix3d StartPose = Eigen::Matrix3d::Identity();
