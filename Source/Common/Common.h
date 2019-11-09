@@ -6,6 +6,7 @@
 #include <iostream>
 #include <Eigen/Dense>
 #include <memory>
+#include <vector>
 
 
 Eigen::Matrix2d Rot(double q);

@@ -190,8 +190,6 @@ TEST(SolverTest, RunTrajectoryPlanner)
     check_trajectories(positions);
     check_trajectories(accelerations);
     verify(accelerations, answer);
-    //std::cout << answer[60](0) << " " << positions[60](0)  << " size of computed traj : " << positions.size() << std::endl;
-    //ASSERT_NEAR(answer[60](0), positions[60](0), 0.001);
 }
 
 
