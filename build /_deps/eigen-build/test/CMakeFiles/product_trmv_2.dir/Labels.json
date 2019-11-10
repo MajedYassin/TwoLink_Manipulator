@@ -1,0 +1,16 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/majed/CLionProjects/TwoLink_manip/build /_deps/eigen-src/test/product_trmv.cpp"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"BuildOfficial"
+		],
+		"name" : "product_trmv_2"
+	}
+}

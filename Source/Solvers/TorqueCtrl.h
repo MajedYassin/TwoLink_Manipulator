@@ -33,8 +33,11 @@ struct Dynamics
     Eigen::Vector2d get_gravity_vector(Eigen::Vector2d& q);
 
 
-private:
+    Eigen::Vector2d get_friction(Eigen::Vector2d& qd);
 
+
+private:
+    double friction_coefficient;
     virtual Eigen::Matrix2d get_gravity(Eigen::Vector2d& q); //component of gravity used in get_torque forward recursion
 
 };
@@ -51,6 +54,9 @@ struct TorqueController : public Dynamics{
 
 
     std::vector<Eigen::Vector2d> feedforward_torque(std::vector<Eigen::Vector2d>& pos_traj, std::vector<Eigen::Vector2d>& vel_traj, std::vector<Eigen::Vector2d>& acc_traj);
+
+
+    std::vector<Eigen::Vector2d> pendulum_test();
 
 
 private:

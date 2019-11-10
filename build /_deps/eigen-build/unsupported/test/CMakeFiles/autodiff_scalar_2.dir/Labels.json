@@ -1,0 +1,16 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/home/majed/CLionProjects/TwoLink_manip/build /_deps/eigen-src/unsupported/test/autodiff_scalar.cpp"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"BuildUnsupported"
+		],
+		"name" : "autodiff_scalar_2"
+	}
+}
