@@ -106,7 +106,7 @@ TEST(SolverTest, TestTorqueControl)
     std::vector<Eigen::Vector2d> positions, velocities, accelerations, torques;
     SBot bot;
     State s;
-    InvDynamics feedforward = InvDynamics(s, bot);
+    TorqueController feedforward = TorqueController(s, bot);
     TrapezTrajectory traj = TrapezTrajectory(bot, s);
     Eigen::Vector2d qf = (Eigen::Vector2d(2) << - M_PI_4, (M_PI_2)/3).finished();
     positions = traj.pos_traj(s.q, qf);
@@ -115,28 +115,6 @@ TEST(SolverTest, TestTorqueControl)
     torques = feedforward.feedforward_torque(positions, velocities, accelerations);
     std::vector<Eigen::Vector2d> example_torque = set_torque();
 
-    /*
-    std::cout << " break " << std::endl;
-    std::cout << " " << std::endl;
-    std::cout << " acceleration response array" << std::endl;
-
-    std::cout << " " << std::endl;
-
-    //Checking variables for errors
-    check_torque(feedforward.acceleration_response, positions);
-
-    std::cout << " break " << std::endl;
-    std::cout << " " << std::endl;
-    std::cout << " position response array" << std::endl;
-
-    check_torque(feedforward.position_response_array, positions);
-
-    std::cout << " break " << std::endl;
-    std::cout << " " << std::endl;
-
-    std::cout << "Inertia Array "  << std::endl;
-    read_array(feedforward.inertia_array);
-    */
     std::cout << " break " << std::endl;
     std::cout << " " << std::endl;
     std::cout << "Compare Torque to Simulink Results"  << std::endl;

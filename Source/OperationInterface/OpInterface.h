@@ -19,7 +19,7 @@ struct OpInt
     //Operations
     State s;
     TrapezTrajectory trajectory;
-    InvDynamics torque;
+    TorqueController torque;
     Eigen::MatrixX2d Q;
     SBot sbot;
     Eigen::Vector2d set_position;

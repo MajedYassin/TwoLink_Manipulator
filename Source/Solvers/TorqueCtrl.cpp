@@ -13,41 +13,6 @@ Dynamics::Dynamics(State& state, SBot& sbot) : s(state), bot(sbot){
     g  = 9.81;
     dt = 0.01;
 
-    //Map Component: retunrs the component of the Jacobian for joint configuration q
-    Component[X] = [&] (Eigen::Matrix2d Jac, Eigen::Vector2d q, int l) -> Eigen::Matrix2d
-    {
-        double jac_x;
-        for(int i = 0; i <= l; ++i){
-            for(int n = i; n <= l; ++n){
-                int m = i;
-                double q_sum = 0.0;
-                while (m <= n) q_sum += q(m); ++m;
-                if ((m = l)) jac_x = link_cm(m) * sin(q_sum);
-                else jac_x = link_length(m) * sin(q_sum);
-                Jac(0, i) -= jac_x;
-            }
-        }
-        return Jac;
-    };
-    Component[Y] = [&] (Eigen::Matrix2d Jac, Eigen::Vector2d q, int l) -> Eigen::Matrix2d
-    {
-        double jac_y = 0;
-        for(int i = 0; i <= l; ++i){
-            for(int n = i; n <= l; ++n){
-                int m = i;
-                double q_sum = 0.0;
-                while(m <= n) {
-                    q_sum += q(m);
-                    ++m;
-                }
-                if (m == l) jac_y = link_cm(n) * cos(q_sum);
-                else jac_y = link_length(n) * cos(q_sum);
-                Jac(1, i) -= jac_y;
-            }
-
-        }
-        return Jac;
-    };
 }
 
 
@@ -106,7 +71,7 @@ Eigen::Vector2d Dynamics::get_torque(Eigen::Vector2d& q, Eigen::Vector2d& qd, Ei
 
 
 
-std::vector<Eigen::Vector2d> InvDynamics::feedforward_torque(std::vector<Eigen::Vector2d>& pos_traj, std::vector<Eigen::Vector2d>& vel_traj, std::vector<Eigen::Vector2d>& acc_traj)
+std::vector<Eigen::Vector2d> TorqueController::feedforward_torque(std::vector<Eigen::Vector2d>& pos_traj, std::vector<Eigen::Vector2d>& vel_traj, std::vector<Eigen::Vector2d>& acc_traj)
 {
     Integrator velocity_response(s.qd, s.qdd, dt);
     Integrator position_response(s.q, s.qd, dt);
@@ -143,7 +108,7 @@ std::vector<Eigen::Vector2d> InvDynamics::feedforward_torque(std::vector<Eigen::
         torque_i = Dynamics::get_torque(q, qd, qdd) + (Kv * vel_error) + (Kp * pos_error);
         torque.emplace_back(torque_i);
 
-        acc_response = InvDynamics::state_response(torque_i, inertia, coriolis, gravity);
+        acc_response = TorqueController::state_response(torque_i, inertia, coriolis, gravity);
         acceleration_response.emplace_back(acc_response);
 
         vel_response = velocity_response.integration(acc_response);
@@ -155,7 +120,7 @@ std::vector<Eigen::Vector2d> InvDynamics::feedforward_torque(std::vector<Eigen::
 }
 
 
-Eigen::Vector2d InvDynamics::state_response(Eigen::Vector2d& torque, Eigen::Matrix2d& inertia, Eigen::Vector2d& coriolis, Eigen::Vector2d& gravity)
+Eigen::Vector2d TorqueController::state_response(Eigen::Vector2d& torque, Eigen::Matrix2d& inertia, Eigen::Vector2d& coriolis, Eigen::Vector2d& gravity)
 {
     Eigen::Vector2d acc_computed;
 
@@ -165,7 +130,7 @@ Eigen::Vector2d InvDynamics::state_response(Eigen::Vector2d& torque, Eigen::Matr
 }
 
 
-Eigen::Vector2d InvDynamics::get_gravity_vector(Eigen::Vector2d& q)
+Eigen::Vector2d TorqueController::get_gravity_vector(Eigen::Vector2d& q)
 {
     Eigen::Vector2d at_rest = Eigen::Vector2d::Zero();
 
@@ -175,7 +140,7 @@ Eigen::Vector2d InvDynamics::get_gravity_vector(Eigen::Vector2d& q)
 }
 
 //Inertia component of the torques: Inertia Matrix M(q) * qdd(angular acceleration vector);
-Eigen::Matrix2d InvDynamics::get_inertia_matrix(Eigen::Vector2d& q, Eigen::Vector2d& gravity)
+Eigen::Matrix2d TorqueController::get_inertia_matrix(Eigen::Vector2d& q, Eigen::Vector2d& gravity)
 {
     Eigen::Matrix2d inertia_matrix;
     Eigen::Vector2d at_rest  = Eigen::Vector2d::Zero();
@@ -193,7 +158,7 @@ Eigen::Matrix2d InvDynamics::get_inertia_matrix(Eigen::Vector2d& q, Eigen::Vecto
 }
 
 //Coriolis (coriolis + centrifugal) component of the torques: Coriolis Matrix C(q, qd) * qd;
-Eigen::Vector2d InvDynamics::get_coriolis_vector(Eigen::Vector2d& q, Eigen::Vector2d& qd, Eigen::Vector2d& gravity)
+Eigen::Vector2d TorqueController::get_coriolis_vector(Eigen::Vector2d& q, Eigen::Vector2d& qd, Eigen::Vector2d& gravity)
 {
     Eigen::Vector2d coriolis_vec;
     Eigen::Vector2d at_rest = Eigen::Vector2d::Zero();
@@ -224,10 +189,6 @@ Eigen::Matrix2d Dynamics::get_gravity(Eigen::Vector2d& q)
     return grav;
 }
 
-
-
-//Unused Functions to independently calculate the Coriolis and Jacobian matrix and the gravity Vector;
-
 /*
 Eigen::Vector2d InvDynamics::get_gravity(Eigen::Vector2d& q)
 {
@@ -251,18 +212,6 @@ Eigen::Vector2d InvDynamics::get_gravity(Eigen::Vector2d& q)
     return grav;
 }
 
-
-Eigen::Matrix2d InvDynamics::get_jacobian(Eigen::Vector2d& q, int link)
-{
-    Eigen::Matrix2d J;
-    //Two Rows as the manipulator end-effector has only 2DOF
-    J  = Eigen::Matrix2d::Zero();
-
-    J = Component[X](J, q, link);
-    J = Component[Y](J, q, link);
-
-    return (J);
-}
 
 
 //The rotation (angular velocity) of a link results in a Coriolis force being exerted on the previous link, which is supporting it.
