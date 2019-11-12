@@ -1,4 +1,0 @@
-# Target labels
- BuildUnsupported
-# Source files and their labels
-/home/majed/CLionProjects/TwoLink_manip/build /_deps/eigen-src/unsupported/test/matrix_power.cpp

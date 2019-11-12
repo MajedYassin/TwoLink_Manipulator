@@ -7,7 +7,6 @@
 #include <Eigen/Dense>
 #include <memory>
 #include <vector>
-#include <fstream>
 
 
 Eigen::Matrix2d Rot(double q);
@@ -50,20 +49,8 @@ struct Integrator{
 };
 
 
-template<typename T, size_t R, size_t C>
-inline void copy_to_document(std::fstream & doc, std::vector<Eigen::Matrix<T, R, C>> const & target_vec) {
-    if (doc.is_open()) {
-        for (auto const &vectors : target_vec) {
-            for (auto const &elements : vectors) {
-                doc << std::to_string(elements) + ", ";
-            }
-            doc << std::endl;
-        }
-    }
-}
 
-//std::fstream res_norm_file ("/Users/Majed/Home/CLionProjects/Project_txt_files/torque_readings.csv",
-//                                std::fstream::out | std::fstream::trunc);
+
 
 
 #endif //TWOLINK_MANIP_COMMON_H

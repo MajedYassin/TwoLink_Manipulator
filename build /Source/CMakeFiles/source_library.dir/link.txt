@@ -1,2 +1,0 @@
-/usr/bin/ar qc libsource_library.a  CMakeFiles/source_library.dir/Solvers/InvKinematics.cpp.o CMakeFiles/source_library.dir/Solvers/FKinematics.cpp.o CMakeFiles/source_library.dir/Solvers/TorqueCtrl.cpp.o CMakeFiles/source_library.dir/Solvers/TrpzTrajectory.cpp.o CMakeFiles/source_library.dir/Solvers/VelocityKinematics.cpp.o CMakeFiles/source_library.dir/Common/Common.cpp.o
-/usr/bin/ranlib libsource_library.a
