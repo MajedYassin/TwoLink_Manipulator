@@ -23,7 +23,7 @@ Specific tools and external libraries required
 #Setup 
 To run this project, you can clone th project directly from the repository address 
 ```
-$ git clone "respository address"
+$ git clone "https://github.com/MajedYassin/TwoLink_Manipulator.git"
 $ cd "cloned repository"
 $ mkdir build //create a build in which to save the Cmake project build files 
 $ cd build
