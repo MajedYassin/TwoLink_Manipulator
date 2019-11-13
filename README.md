@@ -1,6 +1,6 @@
-# TwoLink_Manipulator
+## TwoLink_Manipulator Project
 
-#General Info
+# General Info
 This project model simulates the motion of a 2DOF two link manipulator. 
 The project comprises the following solvers used to estimate the motion and behaviour of the manipulator: 
 - Feedforward torque control;
@@ -8,7 +8,7 @@ The project comprises the following solvers used to estimate the motion and beha
 - Velocity Kinematics (calculatign end-effector velocity);
 - Trajectory planer (trapezoidal trajectory);
 
-#Technology 
+# Technology 
 software and language used:
 - C++ version 11;
 - Cmake minimum required version 3.14;
@@ -22,7 +22,7 @@ Specific tools and external libraries required
 
 The above libraires can be linked to the Cmake project using FetchContent   
 
-#Setup 
+# Setup 
 To run this project, you can clone th project directly from the repository address 
 ```
 $ git clone "https://github.com/MajedYassin/TwoLink_Manipulator.git"
