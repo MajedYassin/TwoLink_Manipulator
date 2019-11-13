@@ -8,7 +8,7 @@ Dynamics::Dynamics(State& state, SBot& sbot) : s(state), bot(sbot){
     Iq          << bot.link_inertia(0), bot.link_inertia(1);
     link_length << bot.link_length(0), bot.link_length(1);
     link_cm     << bot.link_cm(0), bot.link_cm(1);
-    friction_coefficient = -0.2;
+    friction_coefficient = -0.5;
     g  = 9.81;
     dt = 0.01;
 
@@ -207,7 +207,8 @@ Eigen::Matrix2d Dynamics::get_gravity(Eigen::Vector2d& q)
 }
 
 
-std::vector<Eigen::Vector2d> TorqueController::pendulum_test()
+
+std::vector<Eigen::Vector2d> TorqueController::twolink_pendulum()
 {
     std::vector<Eigen::Vector2d> position, velocity, acceleration;
     Eigen::Vector2d  coriolis, gravity, friction, torque, acc_response, vel_response, at_rest, constant;
@@ -217,8 +218,6 @@ std::vector<Eigen::Vector2d> TorqueController::pendulum_test()
     position.emplace_back(s.q);
     velocity.emplace_back(at_rest);
     acceleration.emplace_back(at_rest);
-    //acceleration.emplace_back(-1 * get_gravity_vec(s.q));
-    //velocity.emplace_back(acceleration.back() * dt);
 
 
     Integrator velocity_response(velocity.back(), acceleration.back(), dt);
@@ -235,22 +234,19 @@ std::vector<Eigen::Vector2d> TorqueController::pendulum_test()
         friction = get_friction(velocity.back());
         gravity_array.emplace_back(gravity);
 
-        torque = -gravity + (inertia * acceleration.back()) + coriolis + friction;
+        torque = - gravity + friction;
 
-
-        //torque = get_torque(position.back(), velocity.back(), acceleration.back()) + friction;
         torque_array.emplace_back(torque);
 
-        if(i == 0) acc_response = inertia.inverse() * (torque);
-        else acc_response = inertia.inverse() * (torque + gravity - coriolis);
+        acc_response = inertia.inverse() * (torque - gravity - coriolis);
 
         acceleration.emplace_back(acc_response);
 
         velocity.emplace_back(velocity_response.integration(acc_response));
         position.emplace_back(position_response.trapez_integration(velocity.back()));
 
-        //oscillating  = (velocity.back()(1) != 0.0);
-        oscillating = (i != 5000);
+        
+        oscillating = (i != 3000);
         ++i;
     }
     position_array = position;
@@ -261,7 +257,7 @@ std::vector<Eigen::Vector2d> TorqueController::pendulum_test()
 }
 
 
-
+/*
 Eigen::Vector2d TorqueController::get_gravity_vec(Eigen::Vector2d& q)
 {
     Eigen::Vector2d grav;
@@ -283,3 +279,4 @@ Eigen::Vector2d TorqueController::get_gravity_vec(Eigen::Vector2d& q)
     }
     return grav;
 }
+*/

@@ -57,13 +57,13 @@ struct TorqueController : public Dynamics{
     std::vector<Eigen::Vector2d> feedforward_torque(std::vector<Eigen::Vector2d>& pos_traj, std::vector<Eigen::Vector2d>& vel_traj, std::vector<Eigen::Vector2d>& acc_traj);
 
 
-    std::vector<Eigen::Vector2d> pendulum_test();
+    std::vector<Eigen::Vector2d> twolink_pendulum();
 
 
 private:
     double Kp, Kv;
 
-    Eigen::Vector2d get_gravity_vec(Eigen::Vector2d& q);
+    //Eigen::Vector2d get_gravity_vec(Eigen::Vector2d& q);
 
     static Eigen::Vector2d forward_dynamics(Eigen::Vector2d& torque, Eigen::Matrix2d& inertia, Eigen::Vector2d& coriolis,
                                             Eigen::Vector2d& gravity, Eigen::Vector2d& friction);

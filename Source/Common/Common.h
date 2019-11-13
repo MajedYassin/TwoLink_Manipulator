@@ -50,12 +50,14 @@ struct Integrator{
 };
 
 
-template<typename T, size_t R, size_t C>
-inline void copy_to_document(std::fstream & doc, std::vector<Eigen::Matrix<T, R, C>> const & target_vec) {
+//template<typename T, size_t R, size_t C>
+inline void copy_to_document(std::fstream & doc, std::vector<Eigen::Matrix< double, 2, 1>>& target_vec) {
     if (doc.is_open()) {
         for (auto const &vectors : target_vec) {
-            for (auto const &elements : vectors) {
-                doc << std::to_string(elements) + ", ";
+            double iter = 0.0;
+            while(iter != vectors.size()) {
+                doc << std::to_string(vectors(iter)) + ", ";
+                ++ iter;
             }
             doc << std::endl;
         }

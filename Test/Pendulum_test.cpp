@@ -2,8 +2,10 @@
 
 #include "../Source/Solvers/TorqueCtrl.h"
 #include <iostream>
+#include "../Source/Common/Common.h"
 #include <gtest/gtest.h>
 #include <cmath>
+#include <fstream>
 
 void print_vec(std::vector<Eigen::Vector2d>& vector)
 {
@@ -19,19 +21,11 @@ TEST(SolverTest, PendulumTest)
     Eigen::Vector2d initial_position = (Eigen::Vector2d(2) <<  M_PI_4, 0.0).finished();
     s.set_position(initial_position);
     TorqueController controller = TorqueController(s, bot);
-    std::vector<Eigen::Vector2d> positions = controller.pendulum_test();
+    std::vector<Eigen::Matrix<double, 2, 1>> positions = controller.pendulum_test();
     print_vec(positions);
-    std::cout << "   Break    "  << std::endl;
-    std::cout << "   Break    "  << std::endl;
 
-    std::vector<Eigen::Vector2d> velocity = controller.velocity_array;
-    print_vec(velocity);
-    /*
-    std::cout << "   Break    "  << std::endl;
-    std::cout << "   Break    "  << std::endl;
-    std::vector<Eigen::Vector2d> acceleration = controller.acceleration_array;
-    print_vec(acceleration);
-     */
-    //ASSERT_NEAR(add_operation(M_PI_2), b);
+    std::fstream upload_file("/home/majed/CLionProjects/Project_txt_files/torquectrl_readings.text",
+                           std::fstream::out | std::fstream::trunc);
+    copy_to_document(upload_file, positions);
 }
 
