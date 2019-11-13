@@ -44,8 +44,6 @@ public:
 
 struct TorqueController : public Dynamics{
 
-    std::vector<Eigen::Vector2d> acceleration_response, position_response_array,gravity_array, coriolis_array, torque_array;
-    //std::vector<Eigen::Matrix2d> inertia_array;
     std::vector<Eigen::Vector2d> position_array, velocity_array, acceleration_array;
 
     explicit TorqueController(State& state, SBot& sbot) : Dynamics(state, sbot) {

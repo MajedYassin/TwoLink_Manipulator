@@ -2,7 +2,6 @@
 
 #include "../Source/Solvers/TorqueCtrl.h"
 #include <iostream>
-#include "../Source/Common/Common.h"
 #include <gtest/gtest.h>
 #include <cmath>
 #include <fstream>
@@ -21,8 +20,11 @@ TEST(SolverTest, PendulumTest)
     Eigen::Vector2d initial_position = (Eigen::Vector2d(2) <<  M_PI_4, 0.0).finished();
     s.set_position(initial_position);
     TorqueController controller = TorqueController(s, bot);
-    std::vector<Eigen::Matrix<double, 2, 1>> positions = controller.pendulum_test();
-    print_vec(positions);
+    std::vector<Eigen::Matrix<double, 2, 1>> positions, velocities;
+    positions = controller.twolink_pendulum();
+    velocities = controller.velocity_array;
+
+    print_vec(velocities);
 
     std::fstream upload_file("/home/majed/CLionProjects/Project_txt_files/torquectrl_readings.text",
                            std::fstream::out | std::fstream::trunc);
