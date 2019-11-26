@@ -9,7 +9,7 @@
 void print_vec(std::vector<Eigen::Vector2d>& vector)
 {
     for(int i =0; i != vector.size(); ++i){
-        std::cout << vector[i](0) << " " << vector[i](1) << std::endl;
+        std::cout << vector[i](0) << ", " << vector[i](1) << ", "  << std::endl;
     }
 }
 
@@ -19,12 +19,13 @@ TEST(SolverTest, PendulumTest)
     SBot bot;
     Eigen::Vector2d initial_position = (Eigen::Vector2d(2) <<  M_PI_4, 0.0).finished();
     s.set_position(initial_position);
-    TorqueController controller = TorqueController(s, bot);
+    PendulumModel pendulum = PendulumModel(s, bot);
     std::vector<Eigen::Matrix<double, 2, 1>> positions, velocities;
-    positions = controller.twolink_pendulum();
-    velocities = controller.velocity_array;
+    positions = pendulum.twolink_pendulum();
+    velocities = pendulum.velocity_array;
 
-    print_vec(velocities);
+    //print_vec(positions);
+    //print_vec(velocities);
 
     std::fstream upload_file("/home/majed/CLionProjects/Project_txt_files/torquectrl_readings.text",
                            std::fstream::out | std::fstream::trunc);

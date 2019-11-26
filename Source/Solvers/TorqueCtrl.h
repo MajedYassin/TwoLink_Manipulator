@@ -55,9 +55,6 @@ struct TorqueController : public Dynamics{
     std::vector<Eigen::Vector2d> feedforward_torque(std::vector<Eigen::Vector2d>& pos_traj, std::vector<Eigen::Vector2d>& vel_traj, std::vector<Eigen::Vector2d>& acc_traj);
 
 
-    std::vector<Eigen::Vector2d> twolink_pendulum();
-
-
 private:
     double Kp, Kv;
 
@@ -68,6 +65,18 @@ private:
 };
 
 
+
+struct PendulumModel : public Dynamics {
+
+    std::vector<Eigen::Vector2d> position_array, velocity_array, acceleration_array;
+
+    PendulumModel(State& state, SBot& sbot) : Dynamics(state, sbot){
+
+    }
+
+    std::vector<Eigen::Vector2d> twolink_pendulum();
+
+};
 
 
 #endif //TWOLINK_MANIP_TORQUECTRL_H

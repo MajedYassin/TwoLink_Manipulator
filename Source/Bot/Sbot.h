@@ -12,7 +12,7 @@ struct SBot
     //Link Lengths
     Eigen::Vector2d link_length, link_cm, mass, link_inertia, joint_displaced;
     //Inertia Terms
-    double Inertia1 = 0.0651;
+    double Inertia1 = 0.125;
     double Inertia2 = Inertia1;
     //Base Pose at Origin(0, 0)
     Eigen::Matrix3d StartPose = Eigen::Matrix3d::Identity();
@@ -29,6 +29,18 @@ struct SBot
         Amax = 8.0;
         Vmax = 10.0;
     }
+
+    void set_linklengths(double a, double b);
+
+
+    void set_linkmasses(double a);
+
+
+    void set_acceleration(double A);
+
+
+    void set_velocity(double V);
+
 };
 
 

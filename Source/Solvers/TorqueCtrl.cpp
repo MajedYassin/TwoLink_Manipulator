@@ -210,11 +210,10 @@ Eigen::Matrix2d Dynamics::get_gravity(Eigen::Vector2d& q)
 
 
 
-std::vector<Eigen::Vector2d> TorqueController::twolink_pendulum()
+std::vector<Eigen::Vector2d> PendulumModel::twolink_pendulum()
 {
     std::vector<Eigen::Vector2d> position, velocity, acceleration;
-    Eigen::Vector2d  coriolis, gravity, friction, torque, acc_response, vel_response, at_rest, constant;
-    constant << -0.10, -0.10;
+    Eigen::Vector2d  coriolis, gravity, friction, torque, acc_response, vel_response, at_rest;
     at_rest << 0.0, 0.0;
     Eigen::Matrix2d inertia;
     position.emplace_back(s.q);
@@ -230,24 +229,27 @@ std::vector<Eigen::Vector2d> TorqueController::twolink_pendulum()
 
     while(oscillating) {
 
-        gravity = get_gravity_vector(position.back());
-        inertia = get_inertia_matrix(position.back(), gravity);
+        gravity  = get_gravity_vector(position.back());
+        inertia  = get_inertia_matrix(position.back(), gravity);
         coriolis = get_coriolis_vector(position.back(), velocity.back(), gravity);
         friction = get_friction(velocity.back());
 
         torque = - gravity + friction;
 
-        acc_response = inertia.inverse() * (torque - gravity - coriolis);
+        acc_response = inertia.inverse() * ( - gravity + friction - coriolis);
 
         acceleration.emplace_back(acc_response);
 
         velocity.emplace_back(velocity_response.integration(acc_response));
         position.emplace_back(position_response.trapez_integration(velocity.back()));
 
-
-        oscillating = (i != 3000);
+        if(i > 50) {
+            if(fabs(velocity.back()[1]) < 0.01 && fabs(velocity.back()[0]) < 0.01) oscillating = false;
+            //oscillating = (i != 3000);
+        }
         ++i;
     }
+
     position_array = position;
     velocity_array = velocity;
     acceleration_array = acceleration;

@@ -15,6 +15,12 @@ struct State{
         qdd = (Eigen::Vector2d(2, 1) << 0.0, 0.0).finished();
     }
 
+    State(Eigen::Vector2d& q0){
+        q = q0;
+        qd  = (Eigen::Vector2d(2, 1) << 0.0, 0.0).finished();
+        qdd = (Eigen::Vector2d(2, 1) << 0.0, 0.0).finished();
+    }
+
 
     void set_position(const Eigen::Vector2d& position){
         q = position;

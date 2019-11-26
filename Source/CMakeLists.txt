@@ -1,23 +1,8 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.15)
 
 include(FetchContent)
 
-FetchContent_declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG release-1.8.0
-)
 
-FetchContent_Declare(
-        eigen
-        GIT_REPOSITORY https://github.com/eigenteam/eigen-git-mirror.git
-        GIT_TAG 3.3.7
-)
-
-FetchContent_MakeAvailable(googletest)
-FetchContent_MakeAvailable(eigen)
-
-#Work in Progress: Need to regularly update libraries
 add_subdirectory(Bot)
 add_subdirectory(Solvers)
 add_subdirectory(OperationInterface)
@@ -28,24 +13,30 @@ set(SOLVER_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/InvKinematics.cpp"
         "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/TorqueCtrl.cpp"
         "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/TrpzTrajectory.cpp"
         "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/VelocityKinematics.cpp")
+set(BOT_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Bot/Sbot.cpp")
 
+##Solver header files
 set(SOLVER_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/InvKinematics.h"
         "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/FKinematics.h"
         "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/TrpzTrajectory.h"
         "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/TorqueCtrl.h"
         "${TwoLink_manip_SOURCE_DIR}/Source/Solvers/FKinematics.h")
 
-##Struct Header Files
-set(INTERFACE_DIR "${TwoLink_manip_SOURCE_DIR}/Source/OperationInterface/OpInterface.h")
+##Bot and OperationInterface cpp files
+set(INTERFACE_DIR "${TwoLink_manip_SOURCE_DIR}/Source/OperationInterface/OpInterface.cpp")
+
+##Bot and OperationInterface header files
+set(INTERFACE_LIST "${TwoLink_manip_SOURCE_DIR}/Source/OperationInterface/OpInterface.h")
 set(BOT_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Bot/Sbot.h")
 set(STATE_HEADER "${TwoLink_manip_SOURCE_DIR}/Source/Bot/State.h")
 
 ##Common cpp and header file
 set(COMMON_DIR "${TwoLink_manip_SOURCE_DIR}/Source/Common/Common.cpp")
-set(COMMON_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Common/Common.h")
+set(COMMON_LIST "${TwoLink_manip_SOURCE_DIR}/Source/Common/Common.h" OperationInterface/OpInterface.cpp)
 
 
-add_library(source_library ${SOLVER_DIR} ${SOLVER_LIST} ${INTERFACE_DIR} ${BOT_LIST} ${STATE_HEADER} ${COMMON_DIR} ${COMMON_LIST})
+add_library(source_library ${SOLVER_DIR} ${SOLVER_LIST} ${INTERFACE_DIR} ${BOT_LIST} ${STATE_HEADER} ${COMMON_DIR}
+        ${COMMON_LIST} ${BOT_DIR} ${INTERFACE_LIST})
 
 
 

@@ -8,7 +8,7 @@
 
 
 
-Eigen::Matrix3d ForwardKinematics::f_kin(SBot& bot, State& s, Eigen::Vector2d& qf)
+Eigen::Matrix3d f_kin(SBot& bot, State& s, Eigen::Vector2d& qf)
 {
     //Final Pose of End-Effector given the input joint angles
     Eigen::Matrix3d endpose = Eigen::Matrix3d::Identity();

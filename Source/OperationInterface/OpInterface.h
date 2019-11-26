@@ -7,49 +7,46 @@
 #include "../Solvers/TrpzTrajectory.h"
 #include "../Solvers/TorqueCtrl.h"
 
-//The OperationInterface computes the Inital and final properties of the model e.g. pose, and
-//calls the functions of the Solver to execute the calculations necessary to compute:
-//The Inverse Kinematics, Forward Kinematics or Required Torque of the Two Link Robot
-//The Interface runs based on parameters specified in the bot parameters struct, SBot.
+//The Operation Interface interacts with the Solvers, acting as an interface through which the functions of the library can be called
+//Solvers operations depend on the following solvers:
+//The Inverse Kinematics, Forward Kinematics, Velocity Kinematics, Torque, state response;
+//The Interface takes bot parameters from SBot, and current manipulator state from State as arguments;
 
 
 
 struct OpInt
 {
-    //Operations
     State s;
     TrapezTrajectory trajectory;
     TorqueController torque;
     Eigen::MatrixX2d Q;
     SBot sbot;
-    Eigen::Vector2d set_position;
 
 
-    explicit OpInt(State& instance, TrapezTrajectory& traj, Dynamics& trqcontrol, Eigen::Vector2d& joint_configuration, SBot& bot) : trajectory(bot, instance), torque(instance, bot), s(instance), sbot(bot)
+    explicit OpInt(SBot& bot, State& instance) : trajectory(bot, instance), torque(instance, bot), s(instance), sbot(bot)
     {
-        Q = Eigen::MatrixX2d::Zero();
-        set_position = joint_configuration;
+        //Q = Eigen::MatrixX2d::Zero();
     }
 
-    //Torque Control Solver Call function
-    //std::vector<Eigen::Vector2d> get_feedforward_torque();
-    std::vector<Eigen::Vector2d> get_feedforward_torque()
+    explicit OpInt(SBot& bot, Eigen::Vector2d& initial_position) : s(initial_position), trajectory(bot, s),
+                    torque(s, bot), sbot(bot)
     {
-        std::vector<Eigen::Vector2d> position_traj, velocity_traj, acceleration_traj;
-
-        position_traj     = trajectory.pos_traj(s.q, set_position);
-        velocity_traj     = trajectory.vel_traj();
-        acceleration_traj = trajectory.acc_traj();
-
-        return torque.feedforward_torque(position_traj, velocity_traj, acceleration_traj);
+        //Q = Eigen::MatrixX2d::Zero();
     }
 
 
+    //Torque Control function calls
+    std::vector<Eigen::Vector2d> get_feedforward_torque(Eigen::Vector2d& end_position);
 
-    // std::vector<Eigen::Vector2d> get_trajectory(Eigen::Vector2d& endq);
-    std::vector<Eigen::Vector2d> get_position_trajectory(Eigen::Vector2d& endq){
-        return trajectory.pos_traj(s.q, endq);
-    }
+
+    std::vector<Eigen::Vector2d> get_trajectory(Eigen::Vector2d& endq);
+
+
+    //Forward and Inverse Kinematics function calls
+    Eigen::Matrix3d find_pose(Eigen::Vector2d& end_position);
+
+
+    Eigen::Vector2d find_joint_angles(Eigen::Matrix3d& pose);
 
 };
 
