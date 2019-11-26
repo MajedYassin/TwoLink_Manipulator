@@ -8,4 +8,6 @@
 
 Eigen::Vector2d inv_kin(SBot& bot, Eigen::Matrix3d& endpose);
 
+Eigen::Vector2d joint_angles(SBot& bot, double x, double y);
+
 #endif //TWOLINK_MANIP_INVKINEMATICS_H

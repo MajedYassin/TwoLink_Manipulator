@@ -23,16 +23,9 @@ struct OpInt
     SBot sbot;
 
 
-    explicit OpInt(SBot& bot, State& instance) : trajectory(bot, instance), torque(instance, bot), s(instance), sbot(bot)
-    {
-        //Q = Eigen::MatrixX2d::Zero();
-    }
+    explicit OpInt(SBot& bot, State& instance);
 
-    explicit OpInt(SBot& bot, Eigen::Vector2d& initial_position) : s(initial_position), trajectory(bot, s),
-                    torque(s, bot), sbot(bot)
-    {
-        //Q = Eigen::MatrixX2d::Zero();
-    }
+    explicit OpInt(SBot& bot, Eigen::Vector2d& initial_position);
 
 
     //Torque Control function calls
@@ -46,7 +39,10 @@ struct OpInt
     Eigen::Matrix3d find_pose(Eigen::Vector2d& end_position);
 
 
-    Eigen::Vector2d find_joint_angles(Eigen::Matrix3d& pose);
+    Eigen::Vector2d pose_to_angles(Eigen::Matrix3d& pose);
+
+
+    Eigen::Vector2d cartesian_to_angles(double x, double y);
 
 };
 
