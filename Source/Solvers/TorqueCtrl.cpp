@@ -8,11 +8,7 @@ Dynamics::Dynamics(State& state, SBot& sbot) : s(state), bot(sbot){
     Iq          << bot.link_inertia(0), bot.link_inertia(1);
     link_length << bot.link_length(0), bot.link_length(1);
     link_cm     << bot.link_cm(0), bot.link_cm(1);
-<<<<<<< Updated upstream
     friction_coefficient = -0.5;
-=======
-    friction_coefficient = -0.2;
->>>>>>> Stashed changes
     g  = 9.81;
     dt = 0.01;
 
@@ -48,7 +44,7 @@ Eigen::Vector2d Dynamics::get_torque(Eigen::Vector2d& q, Eigen::Vector2d& qd, Ei
         Ae.col(n) = An_1 + Ae_n;
         Ac.col(n) = An_1 + Ac_n;
     }
-    accelerations.emplace_back(Ac.row(1));
+
     Eigen::Vector2d nextlink_force;
 
     for(int n = (links -1); n >= 0; --n)
@@ -90,10 +86,6 @@ std::vector<Eigen::Vector2d> TorqueController::feedforward_torque(std::vector<Ei
     vel_response = vel_traj[0];
     acc_response = acc_traj[0];
     Eigen::Vector2d coriolis, gravity, friction;
-<<<<<<< Updated upstream
-=======
-    //double pos_check, vel_check, acc_check, q_check, qd_check, qdd_check; //variables checking the joint rotation properties
->>>>>>> Stashed changes
 
     for(int i = 0; i != pos_traj.size(); ++i)
     {
@@ -127,12 +119,8 @@ std::vector<Eigen::Vector2d> TorqueController::feedforward_torque(std::vector<Ei
 }
 
 
-<<<<<<< Updated upstream
 Eigen::Vector2d TorqueController::forward_dynamics(Eigen::Vector2d& torque, Eigen::Matrix2d& inertia,
             Eigen::Vector2d& coriolis, Eigen::Vector2d& gravity, Eigen::Vector2d& friction)
-=======
-Eigen::Vector2d TorqueController::forward_dynamics(Eigen::Vector2d& torque, Eigen::Matrix2d& inertia, Eigen::Vector2d& coriolis, Eigen::Vector2d& gravity, Eigen::Vector2d& friction)
->>>>>>> Stashed changes
 {
     Eigen::Vector2d acc_computed;
 
@@ -225,19 +213,12 @@ Eigen::Matrix2d Dynamics::get_gravity(Eigen::Vector2d& q)
 std::vector<Eigen::Vector2d> PendulumModel::twolink_pendulum()
 {
     std::vector<Eigen::Vector2d> position, velocity, acceleration;
-<<<<<<< Updated upstream
     Eigen::Vector2d  coriolis, gravity, friction, torque, acc_response, vel_response, at_rest;
-=======
-    Eigen::Vector2d  coriolis, gravity, friction, torque, acc_response, vel_response, at_rest, constant;
-    constant << -0.10, -0.10;
->>>>>>> Stashed changes
     at_rest << 0.0, 0.0;
     Eigen::Matrix2d inertia;
     position.emplace_back(s.q);
     velocity.emplace_back(at_rest);
     acceleration.emplace_back(at_rest);
-    //acceleration.emplace_back(-1 * get_gravity_vec(s.q));
-    //velocity.emplace_back(acceleration.back() * dt);
 
 
     Integrator velocity_response(velocity.back(), acceleration.back(), dt);
@@ -248,39 +229,20 @@ std::vector<Eigen::Vector2d> PendulumModel::twolink_pendulum()
 
     while(oscillating) {
 
-<<<<<<< Updated upstream
         gravity  = get_gravity_vector(position.back());
         inertia  = get_inertia_matrix(position.back(), gravity);
-=======
-        gravity = get_gravity_vector(position.back());
-        inertia = get_inertia_matrix(position.back(), gravity);
->>>>>>> Stashed changes
         coriolis = get_coriolis_vector(position.back(), velocity.back(), gravity);
         friction = get_friction(velocity.back());
-        gravity_array.emplace_back(gravity);
 
-<<<<<<< Updated upstream
         torque = - gravity + friction;
 
         acc_response = inertia.inverse() * ( - gravity + friction - coriolis);
 
-=======
-        torque = -gravity + (inertia * acceleration.back()) + coriolis + friction;
-
-
-        //torque = get_torque(position.back(), velocity.back(), acceleration.back()) + friction;
-        torque_array.emplace_back(torque);
-
-        if(i == 0) acc_response = inertia.inverse() * (torque);
-        else acc_response = inertia.inverse() * (torque + gravity - coriolis);
-
->>>>>>> Stashed changes
         acceleration.emplace_back(acc_response);
 
         velocity.emplace_back(velocity_response.integration(acc_response));
         position.emplace_back(position_response.trapez_integration(velocity.back()));
 
-<<<<<<< Updated upstream
         if(i > 50) {
             if(fabs(velocity.back()[1]) < 0.01 && fabs(velocity.back()[0]) < 0.01) oscillating = false;
             //oscillating = (i != 3000);
@@ -288,12 +250,6 @@ std::vector<Eigen::Vector2d> PendulumModel::twolink_pendulum()
         ++i;
     }
 
-=======
-        //oscillating  = (velocity.back()(1) != 0.0);
-        oscillating = (i != 5000);
-        ++i;
-    }
->>>>>>> Stashed changes
     position_array = position;
     velocity_array = velocity;
     acceleration_array = acceleration;
@@ -302,11 +258,7 @@ std::vector<Eigen::Vector2d> PendulumModel::twolink_pendulum()
 }
 
 
-<<<<<<< Updated upstream
 /*
-=======
-
->>>>>>> Stashed changes
 Eigen::Vector2d TorqueController::get_gravity_vec(Eigen::Vector2d& q)
 {
     Eigen::Vector2d grav;
@@ -328,3 +280,4 @@ Eigen::Vector2d TorqueController::get_gravity_vec(Eigen::Vector2d& q)
     }
     return grav;
 }
+*/

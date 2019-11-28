@@ -85,7 +85,7 @@ void check_torque(std::vector<Eigen::Vector2d>& result, std::vector<Eigen::Vecto
     for(int i = 0; i != result.size(); ++i){
         for(int n = 0; n != 1; ++n){
             std::cout << result[i](n) << "  "  << result[i](n+1) <<  std::endl;
-            //ASSERT_NEAR(result[i](n), answer[i](n), 0.1);
+            ASSERT_NEAR(result[i](n), answer[i](n), 0.1);
         }
     }
 }

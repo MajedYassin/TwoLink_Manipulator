@@ -51,7 +51,7 @@ Integrator::Integrator(Eigen::Vector2d& vec_0, Eigen::Vector2d& var_0, double& i
 {
     y0 = vec_0;
     y  = vec_0;
-    v0 = var_0; // value of integrated variable in previous timestep
+    v0 = var_0;
     dt = interval;
 }
 

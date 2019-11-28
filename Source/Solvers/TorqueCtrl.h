@@ -44,11 +44,6 @@ public:
 
 struct TorqueController : public Dynamics{
 
-<<<<<<< Updated upstream
-=======
-    std::vector<Eigen::Vector2d> acceleration_response, position_response_array,gravity_array, coriolis_array, torque_array;
-    //std::vector<Eigen::Matrix2d> inertia_array;
->>>>>>> Stashed changes
     std::vector<Eigen::Vector2d> position_array, velocity_array, acceleration_array;
 
     explicit TorqueController(State& state, SBot& sbot) : Dynamics(state, sbot) {
@@ -63,11 +58,7 @@ struct TorqueController : public Dynamics{
 private:
     double Kp, Kv;
 
-<<<<<<< Updated upstream
     //Eigen::Vector2d get_gravity_vec(Eigen::Vector2d& q);
-=======
-    Eigen::Vector2d get_gravity_vec(Eigen::Vector2d& q);
->>>>>>> Stashed changes
 
     static Eigen::Vector2d forward_dynamics(Eigen::Vector2d& torque, Eigen::Matrix2d& inertia, Eigen::Vector2d& coriolis,
                                             Eigen::Vector2d& gravity, Eigen::Vector2d& friction);
