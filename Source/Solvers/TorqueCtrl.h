@@ -11,13 +11,14 @@
 
 struct Dynamics
 {
-    double g;
-    double dt;
+    double g, dt;
     SBot& bot;
     State& s;
     Eigen::Vector2d link_length, link_cm, Iq;
     Eigen::Matrix2d Rq;
     std::vector<Eigen::Vector2d> accelerations;
+    double friction_coefficient;
+
 
     explicit Dynamics(State& state, SBot& sbot);
 
@@ -36,9 +37,8 @@ struct Dynamics
 
     Eigen::Vector2d get_friction(Eigen::Vector2d& qd);
 
-public:
-    double friction_coefficient;
-    virtual Eigen::Matrix2d get_gravity(Eigen::Vector2d& q); //component of gravity used in get_torque forward recursion
+
+    Eigen::Matrix2d get_gravity(Eigen::Vector2d& q); //component of gravity used in get_torque forward recursion
 
 };
 
@@ -52,7 +52,8 @@ struct TorqueController : public Dynamics{
     }
 
 
-    std::vector<Eigen::Vector2d> feedforward_torque(std::vector<Eigen::Vector2d>& pos_traj, std::vector<Eigen::Vector2d>& vel_traj, std::vector<Eigen::Vector2d>& acc_traj);
+    std::vector<Eigen::Vector2d> feedforward_torque(std::vector<Eigen::Vector2d>& pos_traj, std::vector<Eigen::Vector2d>& vel_traj,
+                                                    std::vector<Eigen::Vector2d>& acc_traj);
 
 
 private:
@@ -71,7 +72,6 @@ struct PendulumModel : public Dynamics {
     std::vector<Eigen::Vector2d> position_array, velocity_array, acceleration_array;
 
     PendulumModel(State& state, SBot& sbot) : Dynamics(state, sbot){
-
     }
 
     void release_pendulum();
