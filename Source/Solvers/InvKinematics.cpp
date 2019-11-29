@@ -20,7 +20,7 @@ Eigen::Vector2d inv_kin(SBot& bot, Eigen::Matrix3d& endpose)
 }
 
 
-Eigen::Vector2d inv_kin(SBot& bot, double x, double y)
+Eigen::Vector2d joint_angles(SBot& bot, double x, double y)
 {
 
     double a1, a2;

@@ -210,7 +210,7 @@ Eigen::Matrix2d Dynamics::get_gravity(Eigen::Vector2d& q)
 
 
 
-std::vector<Eigen::Vector2d> PendulumModel::twolink_pendulum()
+void PendulumModel::release_pendulum()
 {
     std::vector<Eigen::Vector2d> position, velocity, acceleration;
     Eigen::Vector2d  coriolis, gravity, friction, torque, acc_response, vel_response, at_rest;
@@ -234,7 +234,6 @@ std::vector<Eigen::Vector2d> PendulumModel::twolink_pendulum()
         coriolis = get_coriolis_vector(position.back(), velocity.back(), gravity);
         friction = get_friction(velocity.back());
 
-        torque = - gravity + friction;
 
         acc_response = inertia.inverse() * ( - gravity + friction - coriolis);
 
@@ -253,8 +252,6 @@ std::vector<Eigen::Vector2d> PendulumModel::twolink_pendulum()
     position_array = position;
     velocity_array = velocity;
     acceleration_array = acceleration;
-
-    return position;
 }
 
 

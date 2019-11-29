@@ -1,6 +1,7 @@
 
 
 #include "../Source/Solvers/TorqueCtrl.h"
+#include "../Source/OperationInterface/OpInterface.h"
 #include <iostream>
 #include <gtest/gtest.h>
 #include <cmath>
@@ -19,12 +20,12 @@ TEST(SolverTest, PendulumTest)
     SBot bot;
     Eigen::Vector2d initial_position = (Eigen::Vector2d(2) <<  M_PI_4, 0.0).finished();
     s.set_position(initial_position);
-    PendulumModel pendulum = PendulumModel(s, bot);
+    OpInt interface = OpInt(bot, s);
     std::vector<Eigen::Matrix<double, 2, 1>> positions, velocities;
-    positions = pendulum.twolink_pendulum();
-    velocities = pendulum.velocity_array;
+    positions = interface.mimic_pendulum();
+    //velocities = pendulum.velocity_array;
 
-    //print_vec(positions);
+    print_vec(positions);
     //print_vec(velocities);
 
     std::fstream upload_file("/home/majed/CLionProjects/Project_txt_files/torquectrl_readings.text",

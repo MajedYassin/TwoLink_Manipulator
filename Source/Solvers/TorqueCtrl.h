@@ -74,7 +74,7 @@ struct PendulumModel : public Dynamics {
 
     }
 
-    std::vector<Eigen::Vector2d> twolink_pendulum();
+    void release_pendulum();
 
 };
 

@@ -26,6 +26,15 @@ std::vector<Eigen::Vector2d> OpInt::get_feedforward_torque(Eigen::Vector2d& end_
 }
 
 
+std::vector<Eigen::Vector2d> OpInt::mimic_pendulum()
+{
+    PendulumModel pendulum = PendulumModel(s, sbot);
+    pendulum.release_pendulum();
+
+    return pendulum.position_array;
+}
+
+
 std::vector<Eigen::Vector2d> OpInt::get_trajectory(Eigen::Vector2d& end_position)
 {
     return trajectory.pos_traj(s.q, end_position);

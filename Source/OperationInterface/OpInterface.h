@@ -32,6 +32,9 @@ struct OpInt
     std::vector<Eigen::Vector2d> get_feedforward_torque(Eigen::Vector2d& end_position);
 
 
+    std::vector<Eigen::Vector2d> mimic_pendulum();
+
+
     std::vector<Eigen::Vector2d> get_trajectory(Eigen::Vector2d& endq);
 
 
