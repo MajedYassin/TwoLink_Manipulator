@@ -20,15 +20,16 @@ TEST(SolverTest, PendulumTest)
     SBot bot;
     Eigen::Vector2d initial_position = (Eigen::Vector2d(2) <<  M_PI_4, 0.0).finished();
     s.set_position(initial_position);
-    OpInt interface = OpInt(bot, s);
+    PendulumModel pendulum = PendulumModel(s, bot);
     std::vector<Eigen::Matrix<double, 2, 1>> positions, velocities;
-    positions = interface.mimic_pendulum();
-    //velocities = pendulum.velocity_array;
+    pendulum.release_pendulum();
+    positions = pendulum.position_array;
+    velocities = pendulum.velocity_array;
 
     print_vec(positions);
     //print_vec(velocities);
 
-    std::fstream upload_file("/home/majed/CLionProjects/Project_txt_files/torquectrl_readings.text",
+    std::fstream upload_file("/home/majed/CLionProjects/Project_txt_files/torquectrl_readings",
                            std::fstream::out | std::fstream::trunc);
     copy_to_document(upload_file, positions);
 }

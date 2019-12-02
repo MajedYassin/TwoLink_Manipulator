@@ -26,7 +26,8 @@ Eigen::Vector2d Dynamics::get_torque(Eigen::Vector2d& q, Eigen::Vector2d& qd, Ei
     int links = q.rows();
     double qd_sum, qdd_sum;
 
-    //Linear accelerations : components of acceleration in x and y (2D case) with respect to individual link frames
+    //Forward Recursion : recursively calculates the acceleration term of each link and stores vector in matrix Ac
+    //Ae : Accelerations of end of links (used in the equation of link i+1)
     for(int n = 0; n != links; ++n)
     {
         qd_sum = 0.0; //sum of angular velocity components
@@ -47,6 +48,8 @@ Eigen::Vector2d Dynamics::get_torque(Eigen::Vector2d& q, Eigen::Vector2d& qd, Ei
 
     Eigen::Vector2d nextlink_force;
 
+
+    //Backward Recursion: calculates the required torques of each link using the acceleration terms in matrix Ac, calculated in the forward recursion
     for(int n = (links -1); n >= 0; --n)
     {
         qdd_sum = 0.0;
