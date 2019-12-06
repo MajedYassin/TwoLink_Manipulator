@@ -108,9 +108,9 @@ TEST(SolverTest, PendulumTest)
 
 ```
 
-This does not use functions directly to test googletest, although this is also an option, but instead we can plot the array of position against the array of velocities that we get to plot the Phase plane, in Matlab.   
+We can plot the array of positions against the array of velocities in Matlab, to obtain the Phase plane of the system's motion.    
 
-For link masses of 2kg and link lengths of 0.5m, the phase plane should look like this: 
+For link masses of 2kg and link lengths of 0.5m, the phase plane looks like this: 
 
 <p align="center">
   <img src="Figures/Pendulum_phaseplane.jpg">
